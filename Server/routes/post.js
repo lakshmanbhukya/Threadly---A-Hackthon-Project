@@ -1,8 +1,10 @@
 const express = require('express');
 const Post = require('../models/Post');
 const Thread = require('../models/Thread');
+const User = require('../models/User');
 const { uploadMedia, uploadMediaToCloudinary } = require('../middleware/upload');
 const { validatePost } = require('../middleware/validation');
+const { notifyNewPost, notifyNewComment, notifyPostLiked } = require('../utils/notifications');
 const router = express.Router();
 
 // Create post
@@ -43,6 +45,9 @@ router.post('/create', uploadMedia.array('media', 5), validatePost, async (req, 
     const populatedPost = await Post.findById(post._id)
       .populate('createdBy', 'username')
       .populate('threadId', 'title');
+
+    // Send notifications
+    notifyNewPost(post);
 
     res.status(201).json({ 
       message: 'Post created successfully', 
@@ -124,6 +129,11 @@ router.post('/:id/like', async (req, res) => {
 
     await post.save();
 
+    // Send notification for new like
+    if (!isLiked) {
+      notifyPostLiked(post, userId);
+    }
+
     res.json({ 
       message: isLiked ? 'Post unliked' : 'Post liked',
       likesCount: post.likes.length,
@@ -160,6 +170,9 @@ router.post('/:id/comment', async (req, res) => {
     const updatedPost = await Post.findById(req.params.id)
       .populate('comments.createdBy', 'username');
 
+    // Send notification
+    notifyNewComment(post, comment);
+
     res.status(201).json({ 
       message: 'Comment added successfully',
       comment: updatedPost.comments[updatedPost.comments.length - 1]
@@ -181,8 +194,11 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    // Only post creator can delete (unless admin)
-    if (post.createdBy && post.createdBy.toString() !== req.session.userId.toString()) {
+    const user = await User.findById(req.session.userId);
+    const isOwner = post.createdBy && post.createdBy.toString() === req.session.userId.toString();
+    const isAdmin = user.isAdmin;
+    
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: 'Not authorized to delete this post' });
     }
 

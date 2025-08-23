@@ -2,6 +2,7 @@ const express = require('express');
 const Thread = require('../models/Thread');
 const User = require('../models/User');
 const { requireAuth, validateThread } = require('../middleware/validation');
+const { notifyNewThread } = require('../utils/notifications');
 const router = express.Router();
 
 router.post('/create', requireAuth, validateThread, async (req, res) => {
@@ -16,6 +17,9 @@ router.post('/create', requireAuth, validateThread, async (req, res) => {
     });
     
     await thread.save();
+    
+    // Send notifications
+    notifyNewThread(thread);
     
     res.status(201).json({ 
       message: 'Thread created successfully', 
