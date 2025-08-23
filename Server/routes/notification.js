@@ -3,7 +3,6 @@ const Notification = require('../models/Notification');
 const { requireAuth } = require('../middleware/validation');
 const router = express.Router();
 
-// Get user notifications
 router.get('/', requireAuth, async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
@@ -25,7 +24,6 @@ router.get('/', requireAuth, async (req, res) => {
   }
 });
 
-// Mark notification as read
 router.put('/:id/read', requireAuth, async (req, res) => {
   try {
     const notification = await Notification.findOneAndUpdate(
@@ -44,7 +42,6 @@ router.put('/:id/read', requireAuth, async (req, res) => {
   }
 });
 
-// Mark all notifications as read
 router.put('/read-all', requireAuth, async (req, res) => {
   try {
     await Notification.updateMany(

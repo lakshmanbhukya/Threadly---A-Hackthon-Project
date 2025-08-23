@@ -22,14 +22,11 @@ const io = socketIo(server, {
 });
 const PORT = process.env.PORT || 3000;
 
-// MongoDB connection
 const connectDB = require('./DB/Connection');
 connectDB();
 
-// Initialize Socket.IO
 initializeSocket(io);
 
-// Socket.IO connection handling
 io.on('connection', (socket) => {
   socket.on('join', (userId) => {
     socket.join(`user_${userId}`);
@@ -39,8 +36,6 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
   });
 });
-
-// Auto-delete accounts after 30 days
 const deleteExpiredAccounts = async () => {
   try {
     const thirtyDaysAgo = new Date();
@@ -59,12 +54,8 @@ const deleteExpiredAccounts = async () => {
   }
 };
 
-// Run deletion check every hour
 setInterval(deleteExpiredAccounts, 60 * 60 * 1000);
-// Run once on startup
 deleteExpiredAccounts();
-
-// Middleware
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
   credentials: true
@@ -76,13 +67,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production'
   }
 }));
 
-// Routes
 app.use('/users', userRoutes);
 app.use('/threads', threadRoutes);
 app.use('/posts', postRoutes);

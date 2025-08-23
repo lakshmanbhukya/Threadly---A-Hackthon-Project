@@ -18,7 +18,6 @@ router.post('/create', requireAuth, validateThread, async (req, res) => {
     
     await thread.save();
     
-    // Send notifications
     notifyNewThread(thread);
     
     res.status(201).json({ 
@@ -86,6 +85,34 @@ router.put('/:id', requireAuth, validateThread, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Thread update failed' });
+  }
+});
+
+router.post('/:id/like', requireAuth, async (req, res) => {
+  try {
+    const thread = await Thread.findById(req.params.id);
+    if (!thread) {
+      return res.status(404).json({ error: 'Thread not found' });
+    }
+
+    const userId = req.session.userId;
+    const isLiked = thread.likes.includes(userId);
+
+    if (isLiked) {
+      thread.likes.pull(userId);
+    } else {
+      thread.likes.push(userId);
+    }
+
+    await thread.save();
+
+    res.json({ 
+      message: isLiked ? 'Thread unliked' : 'Thread liked',
+      likesCount: thread.likes.length,
+      isLiked: !isLiked
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update thread like' });
   }
 });
 

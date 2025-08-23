@@ -22,7 +22,6 @@ const createNotification = async (recipient, type, message, relatedId, relatedMo
     const populatedNotification = await Notification.findById(notification._id)
       .populate('createdBy', 'username');
     
-    // Emit real-time notification
     if (io) {
       io.to(`user_${recipient}`).emit('notification', populatedNotification);
     }
@@ -35,7 +34,6 @@ const createNotification = async (recipient, type, message, relatedId, relatedMo
 
 const notifyNewThread = async (thread) => {
   try {
-    // Notify all users except the creator
     const users = await require('../models/User').find({ 
       _id: { $ne: thread.createdBy },
       isActive: true 
@@ -76,23 +74,6 @@ const notifyNewPost = async (post) => {
   }
 };
 
-const notifyNewComment = async (post, comment) => {
-  try {
-    if (post.createdBy && comment.createdBy !== post.createdBy.toString()) {
-      await createNotification(
-        post.createdBy,
-        'new_comment',
-        'Someone commented on your post',
-        post._id,
-        'Post',
-        comment.createdBy
-      );
-    }
-  } catch (error) {
-    console.error('Error notifying new comment:', error);
-  }
-};
-
 const notifyPostLiked = async (post, userId) => {
   try {
     if (post.createdBy && userId !== post.createdBy.toString()) {
@@ -115,6 +96,5 @@ module.exports = {
   createNotification,
   notifyNewThread,
   notifyNewPost,
-  notifyNewComment,
   notifyPostLiked
 };
