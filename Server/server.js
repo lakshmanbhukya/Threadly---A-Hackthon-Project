@@ -6,6 +6,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const userRoutes = require('./routes/user');
 const threadRoutes = require('./routes/thread');
+const postRoutes = require('./routes/post');
 const User = require('./models/User');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,6 +60,7 @@ app.use(session({
 // Routes
 app.use('/users', userRoutes);
 app.use('/threads', threadRoutes);
+app.use('/posts', postRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

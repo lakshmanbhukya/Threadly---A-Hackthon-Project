@@ -68,4 +68,18 @@ const validateThread = (req, res, next) => {
   next();
 };
 
-module.exports = { validateRegistration, validateLogin, requireAuth, validateThread };
+const validatePost = (req, res, next) => {
+  const { content } = req.body;
+  
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({ error: 'Post content is required' });
+  }
+  
+  if (content.trim().length > 2000) {
+    return res.status(400).json({ error: 'Post content must be less than 2000 characters' });
+  }
+  
+  next();
+};
+
+module.exports = { validateRegistration, validateLogin, requireAuth, validateThread, validatePost };

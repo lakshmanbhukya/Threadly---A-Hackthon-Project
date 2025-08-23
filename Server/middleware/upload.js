@@ -15,6 +15,18 @@ const upload = multer({
   }
 });
 
+const uploadMedia = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit for videos
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image and video files allowed'), false);
+    }
+  }
+});
+
 const uploadToCloudinary = async (buffer) => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload_stream(
@@ -27,4 +39,23 @@ const uploadToCloudinary = async (buffer) => {
   });
 };
 
-module.exports = { upload, uploadToCloudinary };
+const uploadMediaToCloudinary = async (buffer, mimetype) => {
+  return new Promise((resolve, reject) => {
+    const resourceType = mimetype.startsWith('video/') ? 'video' : 'image';
+    const folder = mimetype.startsWith('video/') ? 'post_videos' : 'post_images';
+    
+    cloudinary.uploader.upload_stream(
+      { resource_type: resourceType, folder },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve({
+          url: result.secure_url,
+          publicId: result.public_id,
+          type: resourceType
+        });
+      }
+    ).end(buffer);
+  });
+};
+
+module.exports = { upload, uploadToCloudinary, uploadMedia, uploadMediaToCloudinary };

@@ -1,0 +1,23 @@
+{
+  "name": "threadly---a-hackthon-project",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/lakshmanbhukya/Threadly---A-Hackthon-Project#readme",
+  "bugs": {
+    "url": "https://github.com/lakshmanbhukya/Threadly---A-Hackthon-Project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lakshmanbhukya/Threadly---A-Hackthon-Project.git"
+  },
+  "license": "ISC",
+  "author": "DeathBringer",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "server": "cd Server && npm start",
+    "client": "npm run server",
+    "install": "cd Server && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
