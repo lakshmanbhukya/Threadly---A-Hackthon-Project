@@ -10,6 +10,7 @@ const userRoutes = require('./routes/user');
 const threadRoutes = require('./routes/thread');
 const postRoutes = require('./routes/post');
 const notificationRoutes = require('./routes/notification');
+const commentRoutes = require('./routes/comments');
 const User = require('./models/User');
 const { initializeSocket } = require('./utils/notifications');
 const app = express();
@@ -77,6 +78,7 @@ app.use('/users', userRoutes);
 app.use('/threads', threadRoutes);
 app.use('/posts', postRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/comments', commentRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
