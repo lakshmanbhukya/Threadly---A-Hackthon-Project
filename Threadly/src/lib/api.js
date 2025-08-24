@@ -188,7 +188,12 @@ export const voteOnPoll = async (threadId, optionIndex) => {
 export const fetchPosts = async (threadId, params = {}) => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.POSTS.BASE, {
-      params: { threadId, ...params },
+      params: {
+        threadId,
+        sortBy: "likes", // Add this
+        order: "desc", // Add this
+        ...params,
+      },
     });
     return response.data;
   } catch (error) {

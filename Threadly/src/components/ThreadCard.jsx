@@ -170,7 +170,9 @@ const ThreadCard = ({ thread, onLike }) => {
             {thread.title}
           </h3>
 
-          <p className="text-[#f9fafb] mb-3 line-clamp-3">{thread.description}</p>
+          <p className="text-gray-200 mb-3 line-clamp-3">
+            {thread.description?.trim() || "No description available"}
+          </p>
 
           <div className="flex items-center space-x-4 text-gray-500">
             <Button

@@ -203,7 +203,7 @@ export default function CreateThread() {
 
       const threadData = {
         title: formData.title,
-        content: formData.content,
+        description: formData.content,
         topic: formData.subreddit,
         postType: postType,
         tags: formData.tags,

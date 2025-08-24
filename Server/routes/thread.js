@@ -136,12 +136,32 @@ router.post(
 );
 router.get("/", async (req, res) => {
   try {
-    const threads = await Thread.find()
-      .populate("createdBy", "username profilePicture")
-      .sort({ createdAt: -1 })
-      .lean();
+    const { sortBy = "createdAt", order = "desc" } = req.query;
 
-    res.json({ threads });
+    let sortOption = {};
+    if (sortBy === "likes") {
+      // Sort in-memory because likes is an array, not a DB field
+      const threads = await Thread.find()
+        .populate("createdBy", "username profilePicture")
+        .lean();
+
+      threads.sort((a, b) => {
+        const aLikes = a.likes?.length || 0;
+        const bLikes = b.likes?.length || 0;
+        return order === "asc" ? aLikes - bLikes : bLikes - aLikes;
+      });
+
+      return res.json({ threads });
+    } else {
+      // For normal DB-supported fields like createdAt
+      sortOption[sortBy] = order === "asc" ? 1 : -1;
+      const threads = await Thread.find()
+        .populate("createdBy", "username profilePicture")
+        .sort(sortOption)
+        .lean();
+
+      return res.json({ threads });
+    }
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch threads" });
   }

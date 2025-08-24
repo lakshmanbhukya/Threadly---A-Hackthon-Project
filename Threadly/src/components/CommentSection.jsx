@@ -6,7 +6,12 @@ import { Avatar } from "./ui/Avatar";
 import { Heart, Trash2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchThreadComments, createComment, likeComment, deleteComment } from "../lib/api";
+import {
+  fetchThreadComments,
+  createComment,
+  likeComment,
+  deleteComment,
+} from "../lib/api";
 import ConfirmDialog from "./ui/ConfirmDialog";
 
 const CommentSection = ({ threadId }) => {
@@ -16,7 +21,10 @@ const CommentSection = ({ threadId }) => {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, comment: null });
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    comment: null,
+  });
 
   useEffect(() => {
     loadComments();
@@ -43,7 +51,7 @@ const CommentSection = ({ threadId }) => {
       const response = await createComment({
         content: newComment,
         threadId,
-        isAnonymous: isAnonymous.toString()
+        isAnonymous: isAnonymous.toString(),
       });
       setComments([response.comment, ...comments]);
       setNewComment("");
@@ -59,11 +67,17 @@ const CommentSection = ({ threadId }) => {
   const handleLikeComment = async (commentId) => {
     try {
       const response = await likeComment(commentId);
-      setComments(comments.map(comment => 
-        comment._id === commentId 
-          ? { ...comment, likes: { length: response.likesCount }, isLiked: response.isLiked }
-          : comment
-      ));
+      setComments(
+        comments.map((comment) =>
+          comment._id === commentId
+            ? {
+                ...comment,
+                likes: { length: response.likesCount },
+                isLiked: response.isLiked,
+              }
+            : comment
+        )
+      );
     } catch (error) {
       toast.error(error.message);
     }
@@ -72,7 +86,7 @@ const CommentSection = ({ threadId }) => {
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteComment(commentId);
-      setComments(comments.filter(comment => comment._id !== commentId));
+      setComments(comments.filter((comment) => comment._id !== commentId));
       toast.success("Comment deleted successfully");
     } catch (error) {
       toast.error(error.message);
@@ -83,7 +97,7 @@ const CommentSection = ({ threadId }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diff = now - date;
-    
+
     if (diff < 60000) return "Just now";
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
@@ -92,8 +106,10 @@ const CommentSection = ({ threadId }) => {
 
   return (
     <div className="mt-8">
-      <h3 className="text-xl font-semibold mb-4">Comments ({comments.length})</h3>
-      
+      <h3 className="text-xl font-semibold mb-4">
+        Comments ({comments.length})
+      </h3>
+
       {isAuthenticated && (
         <Card className="p-4 mb-6">
           <form onSubmit={handleSubmitComment}>
@@ -132,21 +148,31 @@ const CommentSection = ({ threadId }) => {
           {comments.map((comment) => (
             <Card key={comment._id} className="p-4">
               <div className="flex items-start space-x-3">
-                <Avatar 
+                <Avatar
                   className="w-8 h-8"
-                  src={comment.isAnonymous ? null : comment.createdBy?.profilePicture}
-                  fallback={comment.isAnonymous ? "A" : (comment.createdBy?.username?.[0]?.toUpperCase() || "U")}
+                  src={
+                    comment.isAnonymous
+                      ? null
+                      : comment.createdBy?.profilePicture
+                  }
+                  fallback={
+                    comment.isAnonymous
+                      ? "A"
+                      : comment.createdBy?.username?.[0]?.toUpperCase() || "U"
+                  }
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="font-medium text-sm">
-                      {comment.isAnonymous ? "Anonymous" : (comment.createdBy?.username || "Unknown")}
+                      {comment.isAnonymous
+                        ? "Anonymous"
+                        : comment.createdBy?.username || "Unknown"}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-white">
                       {formatTime(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="text-gray-800 mb-3">{comment.content}</p>
+                  <p className="text-white mb-3">{comment.content}</p>
                   <div className="flex items-center space-x-4">
                     <Button
                       variant="ghost"
@@ -161,7 +187,9 @@ const CommentSection = ({ threadId }) => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setDeleteConfirm({ isOpen: true, comment })}
+                        onClick={() =>
+                          setDeleteConfirm({ isOpen: true, comment })
+                        }
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -172,10 +200,12 @@ const CommentSection = ({ threadId }) => {
               </div>
             </Card>
           ))}
-          
+
           {comments.length === 0 && (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No comments yet. Be the first to comment!</p>
+              <p className="text-white">
+                No comments yet. Be the first to comment!
+              </p>
             </div>
           )}
         </div>
