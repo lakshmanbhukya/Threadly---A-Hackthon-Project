@@ -123,11 +123,7 @@ const ThreadCard = ({ thread, onLike }) => {
       onClick={showDeleteConfirm ? undefined : handleCardClick}
     >
       <div className="flex items-start space-x-3">
-<<<<<<< HEAD
         <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full ">
-=======
-        <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-gray-200 hover:border-gray-300">
->>>>>>> fed499779dc8a4e306c17f8ff4a92019bab4fafb
           {displayUser?.profilePicture ? (
             <img
               className="aspect-square h-full w-full object-cover"
