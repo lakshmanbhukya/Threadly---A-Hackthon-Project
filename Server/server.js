@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -13,23 +12,6 @@ const postRoutes = require("./routes/post");
 const notificationRoutes = require("./routes/notification");
 const User = require("./models/User");
 const { initializeSocket } = require("./utils/notifications");
-=======
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const http = require('http');
-const socketIo = require('socket.io');
-const userRoutes = require('./routes/user');
-const threadRoutes = require('./routes/thread');
-const postRoutes = require('./routes/post');
-const notificationRoutes = require('./routes/notification');
-const commentRoutes = require('./routes/comments');
-const User = require('./models/User');
-const { initializeSocket } = require('./utils/notifications');
->>>>>>> 329947cfcc8aafd8870bb76aabd84ba1ba1dfdec
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -95,18 +77,10 @@ app.use(
   })
 );
 
-<<<<<<< HEAD
 app.use("/users", userRoutes);
 app.use("/threads", threadRoutes);
 app.use("/posts", postRoutes);
 app.use("/notifications", notificationRoutes);
-=======
-app.use('/users', userRoutes);
-app.use('/threads', threadRoutes);
-app.use('/posts', postRoutes);
-app.use('/notifications', notificationRoutes);
-app.use('/comments', commentRoutes);
->>>>>>> 329947cfcc8aafd8870bb76aabd84ba1ba1dfdec
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -117,3 +91,4 @@ server.listen(PORT, () => {
   console.log("Account deletion job started");
   console.log("Socket.IO initialized");
 });
+
