@@ -1,0 +1,371 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reddit-style design system - Dark Theme */
+@layer base {
+  :root {
+    /* Main backgrounds - Dark theme */
+    --background: 0 0% 7%; /* #121212 */
+    --foreground: 0 0% 95%;
+
+    /* Cards and surfaces */
+    --card: 0 0% 9%; /* #1e1e1e */
+    --card-foreground: 0 0% 95%;
+
+    /* Brand colors - Reddit orange */
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 7%;
+    --primary-hover: 16 100% 45%;
+
+    /* Upvote orange - Reddit's signature color */
+    --upvote: 16 100% 50%;
+    --upvote-foreground: 0 0% 7%;
+    --upvote-hover: 16 100% 45%;
+
+    /* Secondary actions */
+    --secondary: 0 0% 12%; /* #1f1f1f */
+    --secondary-foreground: 0 0% 95%;
+    --secondary-hover: 0 0% 16%; /* #292929 */
+
+    /* Muted elements */
+    --muted: 0 0% 12%; /* #1f1f1f */
+    --muted-foreground: 0 0% 65%;
+
+    /* Accent colors */
+    --accent: 16 100% 20%;
+    --accent-foreground: 16 100% 80%;
+
+    /* Status colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 7%;
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 7%;
+
+    /* UI elements */
+    --border: 0 0% 18%; /* #2e2e2e */
+    --input: 0 0% 18%; /* #2e2e2e */
+    --ring: 16 100% 50%;
+    --radius: 0.375rem;
+
+    /* Thread-specific colors */
+    --thread-bg: 0 0% 9%; /* #1e1e1e */
+    --thread-border: 0 0% 18%; /* #2e2e2e */
+    --thread-hover: 0 0% 12%; /* #1f1f1f */
+
+    /* Comment nesting */
+    --comment-line: 0 0% 18%; /* #2e2e2e */
+    --comment-bg: 0 0% 11%; /* #1c1c1c */
+
+    /* Sidebar */
+    --topic-active: 16 100% 20%;
+    --topic-active-foreground: 16 100% 80%;
+
+    --sidebar-background: 0 0% 8%; /* #141414 */
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 0% 95%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 12%; /* #1f1f1f */
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 18%; /* #2e2e2e */
+    --sidebar-ring: 16 100% 50%;
+    --sidebar-muted-foreground: 0 0% 65%;
+
+    /* Popover */
+    --popover: 0 0% 9%; /* #1e1e1e */
+    --popover-foreground: 0 0% 95%;
+
+    /* Chart colors */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  /* Light theme - keeping for potential toggle */
+  .light {
+    /* Main backgrounds - Light theme */
+    --background: 0 0% 100%;
+    --foreground: 220 13% 18%;
+
+    /* Cards and surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+
+    /* Brand colors - Reddit orange */
+    --primary: 16 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 16 100% 45%;
+
+    /* Upvote orange - Reddit's signature color */
+    --upvote: 16 100% 50%;
+    --upvote-foreground: 0 0% 100%;
+    --upvote-hover: 16 100% 45%;
+
+    /* Secondary actions */
+    --secondary: 220 13% 96%;
+    --secondary-foreground: 220 13% 18%;
+    --secondary-hover: 220 13% 93%;
+
+    /* Muted elements */
+    --muted: 220 13% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    /* Accent colors */
+    --accent: 16 100% 96%;
+    --accent-foreground: 16 100% 50%;
+
+    /* Status colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* UI elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 16 100% 50%;
+
+    /* Thread-specific colors */
+    --thread-bg: 0 0% 100%;
+    --thread-border: 220 13% 91%;
+    --thread-hover: 220 13% 98%;
+
+    /* Comment nesting */
+    --comment-line: 220 13% 85%;
+    --comment-bg: 0 0% 99%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-muted-foreground: 240 3.8% 46.1%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 18%;
+
+    /* Chart colors */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  /* Base styles for dark theme */
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Reddit-style typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h2 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h3 {
+    @apply text-lg md:text-xl;
+  }
+
+  /* Reddit-style button focus states */
+  button:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Reddit-style input focus states */
+  input:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Reddit-style link hover effects */
+  a:hover {
+    @apply transition-colors duration-200;
+  }
+
+  /* Reddit-style card hover effects */
+  .hover-card {
+    @apply transition-all duration-200 hover:shadow-card-lg hover:scale-[1.01];
+  }
+
+  /* Reddit-style vote button animations */
+  .vote-button {
+    @apply transition-all duration-150 hover:scale-110;
+  }
+}
+
+@layer components {
+  /* Reddit-style button variants */
+  .btn-reddit {
+    @apply bg-primary text-primary-foreground hover:bg-primary-hover font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  .btn-reddit-outline {
+    @apply border border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  .btn-reddit-ghost {
+    @apply text-foreground hover:bg-accent hover:text-accent-foreground font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  /* Reddit-style card */
+  .card-reddit {
+    @apply bg-card border border-border rounded-lg shadow-card hover:shadow-card-lg transition-shadow duration-200;
+  }
+
+  /* Reddit-style input */
+  .input-reddit {
+    @apply bg-background border border-border rounded-lg px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors duration-200;
+  }
+
+  /* Reddit-style topic badge */
+  .topic-badge-reddit {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  /* Reddit-style voting buttons */
+  .vote-btn {
+    @apply flex items-center justify-center w-8 h-8 rounded hover:bg-accent transition-colors duration-200;
+  }
+
+  .vote-btn-up {
+    @apply text-upvote hover:text-upvote-hover hover:bg-upvote/10;
+  }
+
+  .vote-btn-down {
+    @apply text-destructive hover:text-destructive/80 hover:bg-destructive/10;
+  }
+
+  /* Reddit-style comment nesting */
+  .comment-nested {
+    @apply border-l-2 border-comment-line pl-4 ml-4;
+  }
+
+  /* Reddit-style loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Reddit-style hover effects */
+  .hover-lift {
+    @apply transition-all duration-150 hover:scale-110;
+  }
+
+  /* Reddit-style topic badge animations */
+  .topic-badge {
+    @apply transition-all duration-200 hover:scale-105;
+  }
+
+  /* Reddit-style loading skeleton */
+  .skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Reddit-style scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Reddit-style selection */
+  ::selection {
+    @apply bg-primary/20 text-primary-foreground;
+  }
+
+  /* Reddit-style focus ring for keyboard navigation */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Reddit-style line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Reddit-style responsive container */
+  .container-reddit {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Reddit-style card shadows */
+  .shadow-reddit {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .shadow-reddit-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+      0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Reddit-style border radius */
+  .rounded-reddit {
+    @apply rounded-lg;
+  }
+
+  .rounded-reddit-lg {
+    @apply rounded-xl;
+  }
+
+  /* Reddit-style spacing */
+  .space-reddit > * + * {
+    @apply mt-4;
+  }
+
+  .space-reddit-lg > * + * {
+    @apply mt-6;
+  }
+
+  .space-reddit-xl > * + * {
+    @apply mt-8;
+  }
+}
