@@ -65,19 +65,19 @@ export default function Layout({ children }) {
   useEffect(() => {
     if (socket && isAuthenticated && user) {
       // Join user's notification room
-      socket.emit('join', user._id);
-      
-      socket.on('newPost', () => {
+      socket.emit("join", user._id);
+
+      socket.on("newPost", () => {
         loadRecentPosts();
       });
 
-      socket.on('newNotification', () => {
+      socket.on("newNotification", () => {
         loadNotificationCount();
       });
 
       return () => {
-        socket.off('newPost');
-        socket.off('newNotification');
+        socket.off("newPost");
+        socket.off("newNotification");
       };
     }
   }, [socket, isAuthenticated, user]);
@@ -85,12 +85,13 @@ export default function Layout({ children }) {
   const loadRecentPosts = async () => {
     try {
       const data = await fetchAllRecentPosts();
-      const sortedPosts = data.posts?.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-      ).slice(0, 5) || [];
+      const sortedPosts =
+        data.posts
+          ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5) || [];
       setRecentPosts(sortedPosts);
     } catch (error) {
-      console.error('Failed to load recent posts:', error);
+      console.error("Failed to load recent posts:", error);
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ export default function Layout({ children }) {
       const data = await fetchNotifications();
       setUnreadNotifications(data.unreadCount || 0);
     } catch (error) {
-      console.error('Failed to load notification count:', error);
+      console.error("Failed to load notification count:", error);
     }
   };
 
@@ -109,11 +110,11 @@ export default function Layout({ children }) {
     const now = new Date();
     const postDate = new Date(dateString);
     const diffInHours = Math.floor((now - postDate) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'Just now';
+
+    if (diffInHours < 1) return "Just now";
     if (diffInHours < 24) return `${diffInHours} hr. ago`;
     const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
   };
 
   const handleLogout = () => {
@@ -144,13 +145,16 @@ export default function Layout({ children }) {
 
               {/* Logo */}
               <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">
-                    T
-                  </span>
+                <div className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-primary">
+                  <img
+                    src="/favicon.png" // replace with your logo path
+                    alt="Threadly Logo"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <span className="hidden sm:inline-block font-bold text-xl text-foreground">
-                  Threadly
+
+                <span className="hidden sm:inline-block font-medium text-xl text-foreground">
+                  threadly
                 </span>
               </Link>
 
@@ -174,8 +178,8 @@ export default function Layout({ children }) {
               {/* Action buttons - Reddit style */}
               {/* Remove AD button */}
 
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => setChatPanelOpen(true)}
                 title="Open Chat"
@@ -194,9 +198,9 @@ export default function Layout({ children }) {
                 </Button>
               </Link>
 
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="relative"
                 onClick={() => setNotificationPanelOpen(true)}
                 title="Open Notifications"
@@ -204,7 +208,7 @@ export default function Layout({ children }) {
                 <Bell className="h-4 w-4" />
                 {unreadNotifications > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
                   </span>
                 )}
               </Button>
@@ -453,23 +457,29 @@ export default function Layout({ children }) {
                 >
                   <div className="flex items-start space-x-2 mb-2">
                     <div className="text-xs text-sidebar-muted-foreground">
-                      by {post.createdBy?.username || 'Anonymous'}
+                      by {post.createdBy?.username || "Anonymous"}
                     </div>
                     <div className="text-xs text-sidebar-muted-foreground">
                       • {formatTimeAgo(post.createdAt)}
                     </div>
                   </div>
                   <h4 className="text-sm font-medium text-sidebar-foreground mb-2 line-clamp-2">
-                    {post.content.length > 60 ? `${post.content.substring(0, 60)}...` : post.content}
+                    {post.content.length > 60
+                      ? `${post.content.substring(0, 60)}...`
+                      : post.content}
                   </h4>
                   <div className="flex items-center space-x-3 text-xs text-sidebar-muted-foreground">
                     <span>
                       {post.likes?.length > 1000
                         ? `${(post.likes.length / 1000).toFixed(1)}k`
-                        : post.likes?.length || 0} likes
+                        : post.likes?.length || 0}{" "}
+                      likes
                     </span>
                     {post.media?.length > 0 && (
-                      <span>📎 {post.media.length} file{post.media.length > 1 ? 's' : ''}</span>
+                      <span>
+                        📎 {post.media.length} file
+                        {post.media.length > 1 ? "s" : ""}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -499,18 +509,18 @@ export default function Layout({ children }) {
       </div>
 
       {/* Notification Panel */}
-      <NotificationPanel 
-        isOpen={notificationPanelOpen} 
+      <NotificationPanel
+        isOpen={notificationPanelOpen}
         onClose={() => {
           setNotificationPanelOpen(false);
           loadNotificationCount(); // Refresh count when panel closes
-        }} 
+        }}
       />
 
       {/* Chat Panel */}
-      <UserChatPanel 
-        isOpen={chatPanelOpen} 
-        onClose={() => setChatPanelOpen(false)} 
+      <UserChatPanel
+        isOpen={chatPanelOpen}
+        onClose={() => setChatPanelOpen(false)}
       />
     </div>
   );
