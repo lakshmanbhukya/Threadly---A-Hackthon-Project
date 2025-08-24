@@ -42,40 +42,6 @@
 
 ---
 
-## Project Structure
-Threadly/
-│
-├── Server/
-│ ├── controllers/
-│ ├── models/
-│ ├── routes/
-│ └── server.js
-│
-├── Client/
-│ ├── src/
-│ │ ├── components/
-│ │ │ ├── Home.jsx
-│ │ │ ├── Profile.jsx
-│ │ │ ├── CreateThread.jsx
-│ │ │ ├── ThreadDetail.jsx
-│ │ │ ├── NotFound.jsx
-│ │ │ └── AdminDashboard.jsx
-│ │ ├── context/
-│ │ │ └── AuthContext.jsx
-│ │ ├── utils/
-│ │ │ ├── api.js
-│ │ │ └── util.js
-│ │ ├── config/
-│ │ │ └── config.js
-│ │ ├── main.jsx
-│ │ ├── App.jsx
-│ │ └── index.css, app.css
-│ └── package.json
-│
-└── README.md
-
----
-
 ## Usage
   Navigate to the Home Page to browse threads
   Login or register to create posts and comments
