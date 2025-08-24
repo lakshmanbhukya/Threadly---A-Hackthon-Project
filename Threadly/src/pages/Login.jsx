@@ -91,6 +91,7 @@ export default function Login() {
                 onChange={handleChange}
                 placeholder="Enter your username or email"
                 className="w-full"
+                autoComplete="off"
               />
             </div>
 

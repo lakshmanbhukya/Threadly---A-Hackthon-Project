@@ -209,7 +209,7 @@ export default function Layout({ children }) {
         <aside
           className={`${
             isOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed inset-y-0 left-0 z-50 w-64 transform bg-sidebar-background border-r border-sidebar-border transition-transform duration-300 ease-in-out md:relative md:translate-x-0`}
+          } fixed inset-y-0 left-0 z-50 w-64 transform bg-sidebar-background border-r border-sidebar-border transition-transform duration-300 ease-in-out md:relative md:translate-x-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400`}
         >
           {/* Main Navigation */}
           <nav className="p-4">
@@ -356,7 +356,7 @@ export default function Layout({ children }) {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 overflow-y-auto h-screen scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
           {/* Mobile search bar */}
           {isOpen && (
             <div className="md:hidden p-4 border-b border-border">
@@ -375,7 +375,7 @@ export default function Layout({ children }) {
         </main>
 
         {/* Right Sidebar - Recent Posts - Reddit Style */}
-        <aside className="hidden lg:block w-80 bg-sidebar-background border-l border-sidebar-border p-6">
+        <aside className="hidden lg:block w-80 bg-sidebar-background border-l border-sidebar-border p-6 overflow-y-auto h-screen scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
           {/* Recent Posts Header */}
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-sidebar-foreground">

@@ -1,8 +1,7 @@
 import axios from "axios";
-import { config } from "../config/config";
+import { API_CONFIG, getApiUrl } from "../config/apiConfig";
 
-// API Configuration
-const API_BASE = config.backend.baseURL;
+const API_BASE = API_CONFIG.BASE_URL;
 
 // Create axios instance with session support
 const api = axios.create({
@@ -36,7 +35,7 @@ api.interceptors.response.use(
 // Authentication APIs
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post("/users/register", userData);
+    const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.REGISTER, userData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Registration failed");
@@ -45,7 +44,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (credentials) => {
   try {
-    const response = await api.post("/users/login", credentials);
+    const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Login failed");
@@ -54,27 +53,43 @@ export const loginUser = async (credentials) => {
 
 export const checkAuth = async () => {
   try {
-    const response = await api.get("/users/auto-login");
+    const response = await api.get(API_CONFIG.ENDPOINTS.AUTH.AUTO_LOGIN);
     return response.data;
   } catch (err) {
-    console.error("Authentication check failed:", err);
-    throw new Error("Authentication check failed");
+    throw err;
   }
 };
 
 export const logoutUser = async () => {
   try {
-    const response = await api.post("/users/logout");
+    const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
     return response.data;
   } catch (err) {
-    console.error("Logout failed:", err);
     throw new Error("Logout failed");
+  }
+};
+
+export const fetchProfile = async () => {
+  try {
+    const response = await api.get(API_CONFIG.ENDPOINTS.AUTH.PROFILE);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch profile");
+  }
+};
+
+export const fetchUserProfile = async (username) => {
+  try {
+    const response = await api.get(`${API_CONFIG.ENDPOINTS.AUTH.PROFILE}/${username}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch user profile");
   }
 };
 
 export const updateProfile = async (userData) => {
   try {
-    const response = await api.put("/users/profile", userData);
+    const response = await api.put(API_CONFIG.ENDPOINTS.AUTH.PROFILE, userData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Profile update failed");
@@ -84,43 +99,16 @@ export const updateProfile = async (userData) => {
 // Thread APIs
 export const fetchThreads = async (params = {}) => {
   try {
-    const response = await api.get("/threads", { params });
+    const response = await api.get(API_CONFIG.ENDPOINTS.THREADS.BASE, { params });
     return response.data;
   } catch (error) {
-    // Return dummy data if backend is unavailable
-    console.warn("Backend unavailable, using dummy data:", error.message);
-    return {
-      threads: [
-        {
-          _id: "1",
-          title: "Welcome to Threadly!",
-          description:
-            "This is a sample thread to get you started. The backend is currently unavailable.",
-          topic: "general",
-          createdBy: { username: "ThreadlyBot" },
-          likes: [],
-          createdAt: new Date().toISOString(),
-          replyCount: 0,
-        },
-        {
-          _id: "2",
-          title: "Getting Started with Threadly",
-          description:
-            "Learn how to create threads, post content, and engage with the community.",
-          topic: "help",
-          createdBy: { username: "ThreadlyBot" },
-          likes: [],
-          createdAt: new Date().toISOString(),
-          replyCount: 0,
-        },
-      ],
-    };
+    throw new Error(error.response?.data?.error || "Failed to fetch threads");
   }
 };
 
 export const fetchThreadById = async (id) => {
   try {
-    const response = await api.get(`/threads/${id}`);
+    const response = await api.get(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch thread");
@@ -129,39 +117,7 @@ export const fetchThreadById = async (id) => {
 
 export const createThread = async (threadData) => {
   try {
-    // Handle different post types
-    const formData = new FormData();
-
-    if (threadData.postType === "media" && threadData.mediaFiles?.length > 0) {
-      // Add media files
-      threadData.mediaFiles.forEach((file) => {
-        formData.append("media", file);
-      });
-    }
-
-    // Add other fields
-    formData.append("title", threadData.title);
-    formData.append("description", threadData.content || "");
-    formData.append("topic", threadData.topic);
-    formData.append("postType", threadData.postType);
-
-    if (threadData.tags?.length > 0) {
-      formData.append("tags", JSON.stringify(threadData.tags));
-    }
-
-    if (threadData.postType === "link" && threadData.linkUrl) {
-      formData.append("linkUrl", threadData.linkUrl);
-    }
-
-    if (threadData.postType === "poll" && threadData.pollOptions) {
-      formData.append("pollOptions", JSON.stringify(threadData.pollOptions));
-    }
-
-    const response = await api.post("/threads/create", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await api.post(API_CONFIG.ENDPOINTS.THREADS.CREATE, threadData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to create thread");
@@ -170,7 +126,7 @@ export const createThread = async (threadData) => {
 
 export const updateThread = async (id, threadData) => {
   try {
-    const response = await api.put(`/threads/${id}`, threadData);
+    const response = await api.put(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`, threadData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to update thread");
@@ -179,7 +135,7 @@ export const updateThread = async (id, threadData) => {
 
 export const likeThread = async (id) => {
   try {
-    const response = await api.post(`/threads/${id}/like`);
+    const response = await api.post(API_CONFIG.ENDPOINTS.THREADS.LIKE(id));
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to like thread");
@@ -188,7 +144,7 @@ export const likeThread = async (id) => {
 
 export const voteOnPoll = async (threadId, optionIndex) => {
   try {
-    const response = await api.post(`/threads/${threadId}/poll-vote`, {
+    const response = await api.post(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${threadId}/poll-vote`, {
       optionIndex,
     });
     return response.data;
@@ -200,7 +156,7 @@ export const voteOnPoll = async (threadId, optionIndex) => {
 // Post APIs
 export const fetchPosts = async (threadId, params = {}) => {
   try {
-    const response = await api.get("/posts", {
+    const response = await api.get(API_CONFIG.ENDPOINTS.POSTS.BASE, {
       params: { threadId, ...params },
     });
     return response.data;
@@ -211,7 +167,7 @@ export const fetchPosts = async (threadId, params = {}) => {
 
 export const fetchPostById = async (id) => {
   try {
-    const response = await api.get(`/posts/${id}`);
+    const response = await api.get(`${API_CONFIG.ENDPOINTS.POSTS.BASE}/${id}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch post");
@@ -220,7 +176,22 @@ export const fetchPostById = async (id) => {
 
 export const createPost = async (postData) => {
   try {
-    const response = await api.post("/posts/create", postData);
+    const formData = new FormData();
+    formData.append('content', postData.content);
+    if (postData.threadId) formData.append('threadId', postData.threadId);
+    if (postData.isAnonymous) formData.append('isAnonymous', postData.isAnonymous);
+    
+    if (postData.mediaFiles?.length > 0) {
+      postData.mediaFiles.forEach((file) => {
+        formData.append('media', file);
+      });
+    }
+    
+    const response = await api.post(API_CONFIG.ENDPOINTS.POSTS.CREATE, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to create post");
@@ -229,7 +200,7 @@ export const createPost = async (postData) => {
 
 export const updatePost = async (id, postData) => {
   try {
-    const response = await api.put(`/posts/${id}`, postData);
+    const response = await api.put(`${API_CONFIG.ENDPOINTS.POSTS.BASE}/${id}`, postData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to update post");
@@ -238,10 +209,38 @@ export const updatePost = async (id, postData) => {
 
 export const likePost = async (id) => {
   try {
-    const response = await api.post(`/posts/${id}/like`);
+    const response = await api.post(API_CONFIG.ENDPOINTS.POSTS.LIKE(id));
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to like post");
+  }
+};
+
+// Notification APIs
+export const fetchNotifications = async (params = {}) => {
+  try {
+    const response = await api.get(API_CONFIG.ENDPOINTS.NOTIFICATIONS.BASE, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch notifications");
+  }
+};
+
+export const markNotificationRead = async (id) => {
+  try {
+    const response = await api.put(API_CONFIG.ENDPOINTS.NOTIFICATIONS.READ(id));
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to mark notification as read");
+  }
+};
+
+export const markAllNotificationsRead = async () => {
+  try {
+    const response = await api.put(API_CONFIG.ENDPOINTS.NOTIFICATIONS.READ_ALL);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to mark all notifications as read");
   }
 };
 

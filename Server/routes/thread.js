@@ -140,7 +140,7 @@ router.post(
 router.get("/", async (req, res) => {
   try {
     const threads = await Thread.find()
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .sort({ createdAt: -1 });
 
     res.json({ threads });
@@ -153,7 +153,7 @@ router.get("/:id", async (req, res) => {
   try {
     const thread = await Thread.findById(req.params.id).populate(
       "createdBy",
-      "username"
+      "username profilePicture"
     );
 
     if (!thread) {
@@ -189,7 +189,7 @@ router.put("/:id", requireAuth, validateThread, async (req, res) => {
         topic: topic.trim(),
       },
       { new: true }
-    ).populate("createdBy", "username");
+    ).populate("createdBy", "username profilePicture");
 
     res.json({
       message: "Thread updated successfully",
@@ -339,7 +339,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   try {
     const threads = await Thread.find({ createdBy: req.params.userId })
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .sort({ createdAt: -1 });
     res.json({ threads });
   } catch (error) {
@@ -351,7 +351,7 @@ router.get("/user/:userId", async (req, res) => {
 router.get("/liked/:userId", async (req, res) => {
   try {
     const threads = await Thread.find({ likes: req.params.userId })
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .sort({ createdAt: -1 });
     res.json({ threads });
   } catch (error) {
@@ -367,7 +367,7 @@ router.get("/commented/:userId", async (req, res) => {
     );
     const threadIds = [...new Set(posts.map((p) => p.threadId))];
     const threads = await Thread.find({ _id: { $in: threadIds } })
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .sort({ createdAt: -1 });
     res.json({ threads });
   } catch (error) {

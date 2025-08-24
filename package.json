@@ -16,7 +16,8 @@
   "main": "index.js",
   "scripts": {
     "server": "cd Server && npm start",
-    "install": "cd Server && npm install",
+    "client": "cd Threadly && npm start",
+    "install": "cd Server && npm install && cd .. && cd Threadly && npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

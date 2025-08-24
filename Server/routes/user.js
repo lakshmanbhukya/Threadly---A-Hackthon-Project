@@ -45,7 +45,7 @@ router.post("/register", validateRegistration, async (req, res) => {
     req.session.userId = user._id; // Log in the user after registration
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username , isAdmin:user.isAdmin},
     });
   } catch (error) {
     res.status(500).json({ error: "Registration failed" });
@@ -85,10 +85,60 @@ router.post("/login", validateLogin, async (req, res) => {
 
     res.json({
       message: "Login successful",
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username , isAdmin:user.isAdmin},
     });
   } catch (error) {
     res.status(500).json({ error: "Login failed" });
+  }
+});
+
+router.get("/profile", async (req, res) => {
+  try {
+    if (!req.session.userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        about: user.about,
+        profilePicture: user.profilePicture,
+        phone: user.phone,
+        location: user.location,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+router.get("/profile/:username", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        username: user.username,
+        about: user.about,
+        profilePicture: user.profilePicture,
+        location: user.location,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch profile" });
   }
 });
 

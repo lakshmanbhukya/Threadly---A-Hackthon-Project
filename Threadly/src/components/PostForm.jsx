@@ -1,55 +1,148 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
+import { Textarea } from "./ui/Textarea";
+import { Card } from "./ui/Card";
+import { Upload, Image, Video, X } from "lucide-react";
+import { toast } from "sonner";
+import { createPost } from "../lib/api";
+import { validateFile, getFileType, formatFileSize } from "../config/config";
 
-// PostForm: for creating threads or replies
-const PostForm = ({ onSubmit, loading, isReply = false }) => {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [error, setError] = useState("");
+const PostForm = ({ threadId, onPostCreated }) => {
+  const [content, setContent] = useState("");
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    const validFiles = [];
+    const invalidFiles = [];
+
+    files.forEach((file) => {
+      if (validateFile(file)) {
+        validFiles.push(file);
+      } else {
+        invalidFiles.push(file.name);
+      }
+    });
+
+    if (invalidFiles.length > 0) {
+      toast.error(`Invalid files: ${invalidFiles.join(", ")}`);
+    }
+
+    if (mediaFiles.length + validFiles.length > 5) {
+      toast.error("Maximum 5 files allowed");
+      return;
+    }
+
+    setMediaFiles([...mediaFiles, ...validFiles]);
+  };
+
+  const removeFile = (index) => {
+    setMediaFiles(mediaFiles.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isReply && !title.trim()) {
-      setError("Title is required");
+    
+    if (!content.trim() && mediaFiles.length === 0) {
+      toast.error("Please add content or media");
       return;
     }
-    if (!body.trim()) {
-      setError("Body is required");
-      return;
+
+    setIsSubmitting(true);
+    try {
+      const postData = {
+        content: content.trim(),
+        threadId,
+        isAnonymous: isAnonymous.toString(),
+        mediaFiles
+      };
+
+      await createPost(postData);
+      
+      setContent("");
+      setMediaFiles([]);
+      setIsAnonymous(false);
+      toast.success("Post created successfully!");
+      
+      if (onPostCreated) {
+        onPostCreated();
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
-    setError("");
-    onSubmit && onSubmit({ title, body });
-    setTitle("");
-    setBody("");
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-card rounded-lg shadow-card p-5 border border-gray-100 mb-4"
-    >
-      {!isReply && (
-        <input
-          className="w-full mb-3 px-3 py-2 border border-gray-200 rounded text-neutral bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={loading}
+    <Card className="p-4 mb-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Textarea
+          placeholder="What's on your mind?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="min-h-[100px] resize-none"
         />
-      )}
-      <textarea
-        className="w-full mb-3 px-3 py-2 border border-gray-200 rounded text-neutral bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-        placeholder={isReply ? "Write a reply..." : "Body"}
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        rows={isReply ? 2 : 4}
-        disabled={loading}
-      />
-      {error && <div className="text-danger text-sm mb-2">{error}</div>}
-      <Button type="submit" disabled={loading}>
-        {loading ? "Posting..." : isReply ? "Reply" : "Post Thread"}
-      </Button>
-    </form>
+        
+        {mediaFiles.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {mediaFiles.map((file, index) => (
+              <div key={index} className="relative group">
+                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                  {getFileType(file) === "image" ? (
+                    <Image className="w-8 h-8 text-gray-400" />
+                  ) : (
+                    <Video className="w-8 h-8 text-gray-400" />
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                <p className="text-xs text-gray-500 mt-1 truncate">
+                  {file.name} ({formatFileSize(file.size)})
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <Upload className="w-5 h-5 mr-2" />
+              Add Media
+            </label>
+            
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={isAnonymous}
+                onChange={(e) => setIsAnonymous(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">Post anonymously</span>
+            </label>
+          </div>
+          
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Posting..." : "Post"}
+          </Button>
+        </div>
+      </form>
+    </Card>
   );
 };
 

@@ -1,41 +1,36 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Share, MoreHorizontal, User } from "lucide-react";
+import { Heart, MessageCircle, Share, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { Avatar } from "./ui/Avatar";
 import { Badge } from "./ui/Badge";
 import { toast } from "sonner";
-import { likeThread } from "../lib/api";
+import { likePost } from "../lib/api";
 import { useNavigate } from "react-router-dom";
 
-const ThreadCard = ({ thread, onLike }) => {
+const PostCard = ({ post, onLike }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(thread.likes?.length || 0);
+  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [isLiking, setIsLiking] = useState(false);
 
-  const handleLike = async (e) => {
-    e.stopPropagation();
+  const handleLike = async () => {
     if (isLiking) return;
     
     setIsLiking(true);
     try {
-      const response = await likeThread(thread._id);
+      const response = await likePost(post._id);
       setIsLiked(response.isLiked);
       setLikesCount(response.likesCount);
       
       if (onLike) {
-        onLike(thread._id, response.isLiked);
+        onLike(post._id, response.isLiked);
       }
     } catch (error) {
       toast.error(error.message);
     } finally {
       setIsLiking(false);
     }
-  };
-
-  const handleCardClick = () => {
-    navigate(`/thread/${thread._id}`);
   };
 
   const formatTime = (dateString) => {
@@ -50,43 +45,58 @@ const ThreadCard = ({ thread, onLike }) => {
   };
 
   return (
-    <Card 
-      className="p-4 mb-4 cursor-pointer hover:shadow-md transition-shadow"
-      onClick={handleCardClick}
-    >
+    <Card className="p-4 mb-4">
       <div className="flex items-start space-x-3">
         <Avatar 
           className="w-10 h-10"
-          src={thread.createdBy?.profilePicture}
-          fallback={thread.createdBy?.username?.[0]?.toUpperCase() || "U"}
+          src={post.isAnonymous ? null : post.createdBy?.profilePicture}
+          fallback={post.isAnonymous ? "A" : (post.createdBy?.username?.[0]?.toUpperCase() || "U")}
         />
         
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
             <span 
-              className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
-              onClick={(e) => {
+              className={`font-medium ${!post.isAnonymous ? 'text-blue-600 hover:text-blue-800 cursor-pointer' : ''}`}
+              onClick={!post.isAnonymous ? (e) => {
                 e.stopPropagation();
-                navigate(`/profile/${thread.createdBy?.username}`);
-              }}
+                navigate(`/profile/${post.createdBy?.username}`);
+              } : undefined}
             >
-              {thread.createdBy?.username || "Unknown"}
+              {post.isAnonymous ? "Anonymous" : (post.createdBy?.username || "Unknown")}
             </span>
-            <Badge variant="outline" className="text-xs">
-              {thread.topic}
-            </Badge>
+            {post.isAnonymous && (
+              <Badge variant="secondary" className="text-xs">Anonymous</Badge>
+            )}
             <span className="text-sm text-gray-500">
-              {formatTime(thread.createdAt)}
+              {formatTime(post.createdAt)}
             </span>
           </div>
           
-          <h3 className="text-lg font-semibold mb-2 text-blue-600 hover:text-blue-800 cursor-pointer">
-            {thread.title}
-          </h3>
+          <div className="mb-3">
+            <p className="text-gray-800 whitespace-pre-wrap">{post.content}</p>
+          </div>
           
-          <p className="text-gray-600 mb-3 line-clamp-3">
-            {thread.description}
-          </p>
+          {post.media && post.media.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {post.media.map((media, index) => (
+                <div key={index} className="rounded-lg overflow-hidden">
+                  {media.type === "image" ? (
+                    <img
+                      src={media.url}
+                      alt="Post media"
+                      className="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={media.url}
+                      controls
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center space-x-4 text-gray-500">
             <Button
@@ -100,31 +110,17 @@ const ThreadCard = ({ thread, onLike }) => {
               <span>{likesCount}</span>
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center space-x-1"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <Button variant="ghost" size="sm" className="flex items-center space-x-1">
               <MessageCircle className="w-4 h-4" />
-              <span>0</span>
+              <span>Reply</span>
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center space-x-1"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <Button variant="ghost" size="sm" className="flex items-center space-x-1">
               <Share className="w-4 h-4" />
               <span>Share</span>
             </Button>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <Button variant="ghost" size="sm">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </div>
@@ -134,4 +130,4 @@ const ThreadCard = ({ thread, onLike }) => {
   );
 };
 
-export default ThreadCard;
+export default PostCard;

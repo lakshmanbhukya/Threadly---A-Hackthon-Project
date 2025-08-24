@@ -54,7 +54,7 @@ router.post(
       await post.save();
 
       const populatedPost = await Post.findById(post._id)
-        .populate("createdBy", "username")
+        .populate("createdBy", "username profilePicture")
         .populate("threadId", "title");
 
       notifyNewPost(post);
@@ -75,7 +75,7 @@ router.get("/", async (req, res) => {
     const filter = threadId ? { threadId } : {};
 
     const posts = await Post.find(filter)
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .populate("threadId", "title")
       .sort({ createdAt: -1 })
       .limit(limit * 1)
@@ -100,7 +100,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .populate("threadId", "title");
 
     if (!post) {
@@ -213,7 +213,7 @@ router.delete("/:id", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   try {
     const posts = await Post.find({ createdBy: req.params.userId })
-      .populate("createdBy", "username")
+      .populate("createdBy", "username profilePicture")
       .populate("threadId", "title")
       .sort({ createdAt: -1 });
     res.json({ posts });
