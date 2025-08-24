@@ -131,7 +131,7 @@ router.post(
         thread: thread,
       });
     } catch (error) {
-      console.error("Thread creation error:", error);
+      // console.error("Thread creation error:", error);
       res.status(500).json({ error: "Thread creation failed" });
     }
   }
@@ -305,7 +305,7 @@ router.post("/:id/poll-vote", requireAuth, async (req, res) => {
       ),
     });
   } catch (error) {
-    console.error("Poll vote error:", error);
+    // console.error("Poll vote error:", error);
     res.status(500).json({ error: "Failed to update poll vote" });
   }
 });

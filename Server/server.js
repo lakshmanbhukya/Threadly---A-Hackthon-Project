@@ -34,9 +34,9 @@ initializeSocket(io);
 const onlineUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+  // console.log('User connected:', socket.id);
   socket.on('join', (userId) => {
-    console.log(`User ${userId} joined room user_${userId}`);
+    // console.log(`User ${userId} joined room user_${userId}`);
     socket.join(`user_${userId}`);
   });
 
@@ -59,10 +59,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('sendPrivateMessage', (message) => {
-    console.log('Server received private message:', message);
+    // console.log('Server received private message:', message);
     // Send private message to specific user
     io.to(`user_${message.to}`).emit('privateMessage', message);
-    console.log(`Sent message to user_${message.to}`);
+    // console.log(`Sent message to user_${message.to}`);
   });
   
   socket.on('disconnect', () => {
@@ -124,7 +124,6 @@ app.use('/admin', adminRoutes);
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log('Frontend should connect to: http://localhost:3000');
   console.log('Account deletion job started');
   console.log('Socket.IO initialized');
 });

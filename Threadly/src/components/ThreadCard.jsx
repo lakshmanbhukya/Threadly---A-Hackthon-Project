@@ -123,7 +123,7 @@ const ThreadCard = ({ thread, onLike }) => {
       onClick={handleCardClick}
     >
       <div className="flex items-start space-x-3">
-        <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
+        <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-gray-200 hover:border-gray-300">
           {displayUser?.profilePicture ? (
             <img
               className="aspect-square h-full w-full object-cover"
@@ -190,7 +190,10 @@ const ThreadCard = ({ thread, onLike }) => {
               variant="ghost"
               size="sm"
               className="flex items-center space-x-1"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/thread/${thread._id}#comments`);
+              }}
             >
               <MessageCircle className="w-4 h-4" />
               <span>{commentCount}</span>
