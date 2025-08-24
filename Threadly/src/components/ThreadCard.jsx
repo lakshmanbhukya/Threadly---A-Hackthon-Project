@@ -123,7 +123,7 @@ const ThreadCard = ({ thread, onLike }) => {
       onClick={handleCardClick}
     >
       <div className="flex items-start space-x-3">
-        <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full">
+        <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full ">
           {displayUser?.profilePicture ? (
             <img
               className="aspect-square h-full w-full object-cover"
