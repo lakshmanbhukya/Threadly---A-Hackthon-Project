@@ -19,6 +19,16 @@ export default function ThreadDetail() {
 
   useEffect(() => {
     loadThreadAndPosts();
+    
+    // Scroll to comments if hash is present
+    if (window.location.hash === '#comments') {
+      setTimeout(() => {
+        const commentsSection = document.getElementById('comments');
+        if (commentsSection) {
+          commentsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500);
+    }
   }, [id]);
 
   const loadThreadAndPosts = async () => {
@@ -137,7 +147,9 @@ export default function ThreadDetail() {
         )}
       </div>
 
-      <CommentSection threadId={id} />
+      <div id="comments">
+        <CommentSection threadId={id} />
+      </div>
     </div>
   );
 }

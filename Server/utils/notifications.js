@@ -28,7 +28,7 @@ const createNotification = async (recipient, type, message, relatedId, relatedMo
     
     return populatedNotification;
   } catch (error) {
-    console.error('Error creating notification:', error);
+    // console.error('Error creating notification:', error);
   }
 };
 
@@ -50,7 +50,7 @@ const notifyNewThread = async (thread) => {
       );
     }
   } catch (error) {
-    console.error('Error notifying new thread:', error);
+    // console.error('Error notifying new thread:', error);
   }
 };
 
@@ -70,7 +70,7 @@ const notifyNewPost = async (post) => {
       }
     }
   } catch (error) {
-    console.error('Error notifying new post:', error);
+    // console.error('Error notifying new post:', error);
   }
 };
 
@@ -87,7 +87,7 @@ const notifyPostLiked = async (post, userId) => {
       );
     }
   } catch (error) {
-    console.error('Error notifying post liked:', error);
+    // console.error('Error notifying post liked:', error);
   }
 };
 
