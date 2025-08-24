@@ -120,7 +120,7 @@ const ThreadCard = ({ thread, onLike }) => {
   return (
     <Card
       className="p-4 mb-4 cursor-pointer hover:shadow-md transition-shadow"
-      onClick={handleCardClick}
+      onClick={showDeleteConfirm ? undefined : handleCardClick}
     >
       <div className="flex items-start space-x-3">
         <div className="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-gray-200 hover:border-gray-300">
