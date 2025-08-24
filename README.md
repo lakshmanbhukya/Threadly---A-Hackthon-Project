@@ -47,6 +47,3 @@
   Login or register to create posts and comments
   Admin users can access the Admin Dashboard to manage content and users
 
-
-## Project Structure
-
