@@ -27,55 +27,8 @@ const PORT = process.env.PORT || 3000;
 
 const connectDB = require('./DB/Connection');
 connectDB();
-
-initializeSocket(io);
-
 // Store online users for chat
 const onlineUsers = new Map();
-
-io.on('connection', (socket) => {
-  // console.log('User connected:', socket.id);
-  socket.on('join', (userId) => {
-    // console.log(`User ${userId} joined room user_${userId}`);
-    socket.join(`user_${userId}`);
-  });
-
-  // Chat functionality
-  socket.on('joinChat', (userData) => {
-    if (userData.userId && userData.username) {
-      onlineUsers.set(socket.id, userData);
-      socket.join('globalChat');
-      socket.join(`user_${userData.userId}`); // Join user's notification room
-      
-      // Broadcast updated online users list
-      const usersList = Array.from(onlineUsers.values());
-      io.to('globalChat').emit('onlineUsers', usersList);
-    }
-  });
-
-  socket.on('sendChatMessage', (message) => {
-    // Broadcast message to all users in global chat
-    io.to('globalChat').emit('chatMessage', message);
-  });
-
-  socket.on('sendPrivateMessage', (message) => {
-    // console.log('Server received private message:', message);
-    // Send private message to specific user
-    io.to(`user_${message.to}`).emit('privateMessage', message);
-    // console.log(`Sent message to user_${message.to}`);
-  });
-  
-  socket.on('disconnect', () => {
-    // Remove user from online users
-    onlineUsers.delete(socket.id);
-    
-    // Broadcast updated online users list
-    const usersList = Array.from(onlineUsers.values());
-    io.to('globalChat').emit('onlineUsers', usersList);
-    
-    console.log('User disconnected');
-  });
-});
 const deleteExpiredAccounts = async () => {
   try {
     const thirtyDaysAgo = new Date();

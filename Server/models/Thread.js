@@ -9,8 +9,10 @@ const threadSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
+      trim: true,
     },
+
     topic: {
       type: String,
       required: true,

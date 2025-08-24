@@ -16,17 +16,23 @@ router.post(
   uploadMedia.array("media", 10),
   async (req, res) => {
     try {
+      // Ensure user is logged in
+      const userId = req.session.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
       const {
         title,
         description,
         topic,
-        postType,
+        postType = "thread",
         tags,
         linkUrl,
         pollOptions,
       } = req.body;
 
-      // Validate required fields based on post type
+      // Basic validation
       if (!title || !topic) {
         return res.status(400).json({ error: "Title and topic are required" });
       }
@@ -43,16 +49,31 @@ router.post(
           .json({ error: "Link URL is required for link posts" });
       }
 
-      if (
-        postType === "poll" &&
-        (!pollOptions || JSON.parse(pollOptions).length < 2)
-      ) {
-        return res
-          .status(400)
-          .json({ error: "At least 2 poll options are required" });
+      if (postType === "poll") {
+        let parsedPollOptions = [];
+        if (pollOptions) {
+          try {
+            parsedPollOptions = Array.isArray(pollOptions)
+              ? pollOptions.map((opt) => ({ text: opt.trim(), votes: [] }))
+              : JSON.parse(pollOptions).map((opt) => ({
+                  text: opt.trim(),
+                  votes: [],
+                }));
+          } catch (e) {
+            return res
+              .status(400)
+              .json({ error: "Invalid poll options format" });
+          }
+        }
+        if (parsedPollOptions.length < 2) {
+          return res
+            .status(400)
+            .json({ error: "At least 2 poll options are required" });
+        }
+        req.body.parsedPollOptions = parsedPollOptions;
       }
 
-      // Process media files if present
+      // Process media files
       let mediaFiles = [];
       if (req.files && req.files.length > 0) {
         for (const file of req.files) {
@@ -61,64 +82,41 @@ router.post(
               file.buffer,
               file.mimetype
             );
-            mediaFiles.push(result);
-          } catch (uploadError) {
-            console.error("Media upload failed:", uploadError);
+            mediaFiles.push(result); // Should be { url, type, publicId }
+          } catch (err) {
+            console.error("Media upload failed:", err);
             return res.status(500).json({ error: "Media upload failed" });
           }
         }
       }
 
-      // Parse JSON fields
+      // Parse tags safely
       let parsedTags = [];
-      let parsedPollOptions = [];
-
       if (tags) {
         try {
-          parsedTags = JSON.parse(tags);
+          parsedTags = Array.isArray(tags) ? tags : JSON.parse(tags);
         } catch (e) {
           parsedTags = tags
             .split(",")
             .map((tag) => tag.trim())
-            .filter((tag) => tag);
+            .filter(Boolean);
         }
       }
 
-      if (pollOptions) {
-        try {
-          parsedPollOptions = JSON.parse(pollOptions).map((option) => ({
-            text: option.trim(),
-            votes: [],
-          }));
-        } catch (e) {
-          return res.status(400).json({ error: "Invalid poll options format" });
-        }
-      }
-
+      // Build thread object
       const threadData = {
         title: title.trim(),
         description: description ? description.trim() : "",
         topic: topic.trim(),
-        postType: postType || "thread",
-        createdBy: req.session.userId,
+        postType,
+        createdBy: userId,
       };
 
-      // Add optional fields based on post type
-      if (parsedTags.length > 0) {
-        threadData.tags = parsedTags;
-      }
-
-      if (mediaFiles.length > 0) {
-        threadData.mediaFiles = mediaFiles;
-      }
-
-      if (postType === "link" && linkUrl) {
-        threadData.linkUrl = linkUrl.trim();
-      }
-
-      if (postType === "poll" && parsedPollOptions.length > 0) {
-        threadData.pollOptions = parsedPollOptions;
-      }
+      if (mediaFiles.length > 0) threadData.mediaFiles = mediaFiles;
+      if (parsedTags.length > 0) threadData.tags = parsedTags;
+      if (postType === "link" && linkUrl) threadData.linkUrl = linkUrl.trim();
+      if (postType === "poll" && req.body.parsedPollOptions)
+        threadData.pollOptions = req.body.parsedPollOptions;
 
       const thread = new Thread(threadData);
       await thread.save();
@@ -128,15 +126,14 @@ router.post(
       res.status(201).json({
         message: "Thread created successfully",
         threadId: thread._id,
-        thread: thread,
+        thread,
       });
-    } catch (error) {
-      // console.error("Thread creation error:", error);
+    } catch (err) {
+      console.error("Thread creation error:", err);
       res.status(500).json({ error: "Thread creation failed" });
     }
   }
 );
-
 router.get("/", async (req, res) => {
   try {
     const threads = await Thread.find()

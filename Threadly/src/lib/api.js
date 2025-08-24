@@ -35,7 +35,10 @@ api.interceptors.response.use(
 // Authentication APIs
 export const registerUser = async (userData) => {
   try {
-    const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.REGISTER, userData);
+    const response = await api.post(
+      API_CONFIG.ENDPOINTS.AUTH.REGISTER,
+      userData
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Registration failed");
@@ -44,7 +47,10 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (credentials) => {
   try {
-    const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.LOGIN, credentials);
+    const response = await api.post(
+      API_CONFIG.ENDPOINTS.AUTH.LOGIN,
+      credentials
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Login failed");
@@ -84,10 +90,14 @@ export const fetchProfile = async () => {
 
 export const fetchUserProfile = async (username) => {
   try {
-    const response = await api.get(`${API_CONFIG.ENDPOINTS.AUTH.PROFILE}/${username}`);
+    const response = await api.get(
+      `${API_CONFIG.ENDPOINTS.AUTH.PROFILE}/${username}`
+    );
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to fetch user profile");
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch user profile"
+    );
   }
 };
 
@@ -103,7 +113,9 @@ export const updateProfile = async (userData) => {
 // Thread APIs
 export const fetchThreads = async (params = {}) => {
   try {
-    const response = await api.get(API_CONFIG.ENDPOINTS.THREADS.BASE, { params });
+    const response = await api.get(API_CONFIG.ENDPOINTS.THREADS.BASE, {
+      params,
+    });
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch threads");
@@ -112,7 +124,9 @@ export const fetchThreads = async (params = {}) => {
 
 export const fetchThreadById = async (id) => {
   try {
-    const response = await api.get(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`);
+    const response = await api.get(
+      `${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch thread");
@@ -121,16 +135,26 @@ export const fetchThreadById = async (id) => {
 
 export const createThread = async (threadData) => {
   try {
-    const response = await api.post(API_CONFIG.ENDPOINTS.THREADS.CREATE, threadData);
+    const response = await api.post(
+      API_CONFIG.ENDPOINTS.THREADS.CREATE,
+      threadData
+    );
     return response.data;
   } catch (error) {
+    console.error(
+      "Create Thread Error:",
+      error.response?.data || error.message
+    );
     throw new Error(error.response?.data?.error || "Failed to create thread");
   }
 };
 
 export const updateThread = async (id, threadData) => {
   try {
-    const response = await api.put(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`, threadData);
+    const response = await api.put(
+      `${API_CONFIG.ENDPOINTS.THREADS.BASE}/${id}`,
+      threadData
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to update thread");
@@ -148,9 +172,12 @@ export const likeThread = async (id) => {
 
 export const voteOnPoll = async (threadId, optionIndex) => {
   try {
-    const response = await api.post(`${API_CONFIG.ENDPOINTS.THREADS.BASE}/${threadId}/poll-vote`, {
-      optionIndex,
-    });
+    const response = await api.post(
+      `${API_CONFIG.ENDPOINTS.THREADS.BASE}/${threadId}/poll-vote`,
+      {
+        optionIndex,
+      }
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to vote on poll");
@@ -176,7 +203,9 @@ export const fetchAllRecentPosts = async (params = {}) => {
     });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to fetch recent posts");
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch recent posts"
+    );
   }
 };
 
@@ -192,21 +221,26 @@ export const fetchPostById = async (id) => {
 export const createPost = async (postData) => {
   try {
     const formData = new FormData();
-    formData.append('content', postData.content);
-    if (postData.threadId) formData.append('threadId', postData.threadId);
-    if (postData.isAnonymous) formData.append('isAnonymous', postData.isAnonymous);
-    
+    formData.append("content", postData.content);
+    if (postData.threadId) formData.append("threadId", postData.threadId);
+    if (postData.isAnonymous)
+      formData.append("isAnonymous", postData.isAnonymous);
+
     if (postData.mediaFiles?.length > 0) {
       postData.mediaFiles.forEach((file) => {
-        formData.append('media', file);
+        formData.append("media", file);
       });
     }
-    
-    const response = await api.post(API_CONFIG.ENDPOINTS.POSTS.CREATE, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+
+    const response = await api.post(
+      API_CONFIG.ENDPOINTS.POSTS.CREATE,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to create post");
@@ -215,7 +249,10 @@ export const createPost = async (postData) => {
 
 export const updatePost = async (id, postData) => {
   try {
-    const response = await api.put(`${API_CONFIG.ENDPOINTS.POSTS.BASE}/${id}`, postData);
+    const response = await api.put(
+      `${API_CONFIG.ENDPOINTS.POSTS.BASE}/${id}`,
+      postData
+    );
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to update post");
@@ -234,10 +271,14 @@ export const likePost = async (id) => {
 // Notification APIs
 export const fetchNotifications = async (params = {}) => {
   try {
-    const response = await api.get(API_CONFIG.ENDPOINTS.NOTIFICATIONS.BASE, { params });
+    const response = await api.get(API_CONFIG.ENDPOINTS.NOTIFICATIONS.BASE, {
+      params,
+    });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to fetch notifications");
+    throw new Error(
+      error.response?.data?.error || "Failed to fetch notifications"
+    );
   }
 };
 
@@ -246,7 +287,9 @@ export const markNotificationRead = async (id) => {
     const response = await api.put(API_CONFIG.ENDPOINTS.NOTIFICATIONS.READ(id));
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to mark notification as read");
+    throw new Error(
+      error.response?.data?.error || "Failed to mark notification as read"
+    );
   }
 };
 
@@ -255,7 +298,9 @@ export const markAllNotificationsRead = async () => {
     const response = await api.put(API_CONFIG.ENDPOINTS.NOTIFICATIONS.READ_ALL);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to mark all notifications as read");
+    throw new Error(
+      error.response?.data?.error || "Failed to mark all notifications as read"
+    );
   }
 };
 
@@ -271,7 +316,7 @@ export const fetchThreadComments = async (threadId) => {
 
 export const createComment = async (commentData) => {
   try {
-    const response = await api.post('/comments/create', commentData);
+    const response = await api.post("/comments/create", commentData);
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to create comment");
@@ -299,7 +344,7 @@ export const deleteComment = async (id) => {
 // Admin APIs
 export const fetchAdminUsers = async () => {
   try {
-    const response = await api.get('/admin/users');
+    const response = await api.get("/admin/users");
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch users");
@@ -308,7 +353,7 @@ export const fetchAdminUsers = async () => {
 
 export const fetchAdminThreads = async () => {
   try {
-    const response = await api.get('/admin/threads');
+    const response = await api.get("/admin/threads");
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch threads");
@@ -317,7 +362,7 @@ export const fetchAdminThreads = async () => {
 
 export const fetchAdminPosts = async () => {
   try {
-    const response = await api.get('/admin/posts');
+    const response = await api.get("/admin/posts");
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to fetch posts");
@@ -356,7 +401,9 @@ export const toggleUserAdmin = async (id) => {
     const response = await api.put(`/admin/users/${id}/admin`);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.error || "Failed to update admin status");
+    throw new Error(
+      error.response?.data?.error || "Failed to update admin status"
+    );
   }
 };
 
