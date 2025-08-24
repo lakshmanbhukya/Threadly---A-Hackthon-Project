@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useSidebar } from "./ui/sidebar";
 import { useAuth } from "../contexts/AuthContext";
 import { ThemeToggle } from "./ui/ThemeToggle";
+import { fetchAllRecentPosts, fetchNotifications } from "../lib/api";
+import { useSocket } from "../hooks/useSocket";
+import NotificationPanel from "./NotificationPanel";
+import UserChatPanel from "./UserChatPanel";
 import {
   Home,
   TrendingUp,
@@ -25,11 +29,18 @@ import {
   HelpCircle,
   Globe,
   Sparkles,
+  Shield,
 } from "lucide-react";
 
 export default function Layout({ children }) {
   const { isOpen, setIsOpen } = useSidebar();
   const { user, isAuthenticated, logout } = useAuth();
+  const [recentPosts, setRecentPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const [chatPanelOpen, setChatPanelOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const socket = useSocket();
 
   const subredditItems = [
     { name: "r/technology", members: "12.4M", icon: "🔧" },
@@ -44,48 +55,66 @@ export default function Layout({ children }) {
     { name: "r/books", members: "20.1M", icon: "📚" },
   ];
 
-  const recentPosts = [
-    {
-      id: 1,
-      subreddit: "r/technology",
-      title: "New AI breakthrough in machine learning",
-      time: "2 hr. ago",
-      upvotes: 1.2,
-      comments: 45,
-    },
-    {
-      id: 2,
-      subreddit: "r/programming",
-      title: "Best practices for React performance optimization",
-      time: "4 hr. ago",
-      upvotes: 89,
-      comments: 23,
-    },
-    {
-      id: 3,
-      subreddit: "r/gaming",
-      title: "Upcoming game releases this month",
-      time: "6 hr. ago",
-      upvotes: 234,
-      comments: 67,
-    },
-    {
-      id: 4,
-      subreddit: "r/science",
-      title: "Latest discoveries in quantum physics",
-      time: "8 hr. ago",
-      upvotes: 567,
-      comments: 89,
-    },
-    {
-      id: 5,
-      subreddit: "r/movies",
-      title: "Movie recommendations for this weekend",
-      time: "10 hr. ago",
-      upvotes: 123,
-      comments: 34,
-    },
-  ];
+  useEffect(() => {
+    loadRecentPosts();
+    if (isAuthenticated) {
+      loadNotificationCount();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (socket && isAuthenticated && user) {
+      // Join user's notification room
+      socket.emit('join', user._id);
+      
+      socket.on('newPost', () => {
+        loadRecentPosts();
+      });
+
+      socket.on('newNotification', () => {
+        loadNotificationCount();
+      });
+
+      return () => {
+        socket.off('newPost');
+        socket.off('newNotification');
+      };
+    }
+  }, [socket, isAuthenticated, user]);
+
+  const loadRecentPosts = async () => {
+    try {
+      const data = await fetchAllRecentPosts();
+      const sortedPosts = data.posts?.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      ).slice(0, 5) || [];
+      setRecentPosts(sortedPosts);
+    } catch (error) {
+      console.error('Failed to load recent posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadNotificationCount = async () => {
+    try {
+      const data = await fetchNotifications();
+      setUnreadNotifications(data.unreadCount || 0);
+    } catch (error) {
+      console.error('Failed to load notification count:', error);
+    }
+  };
+
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const postDate = new Date(dateString);
+    const diffInHours = Math.floor((now - postDate) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours} hr. ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  };
 
   const handleLogout = () => {
     logout();
@@ -145,7 +174,12 @@ export default function Layout({ children }) {
               {/* Action buttons - Reddit style */}
               {/* Remove AD button */}
 
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setChatPanelOpen(true)}
+                title="Open Chat"
+              >
                 <MessageCircle className="h-4 w-4" />
               </Button>
 
@@ -160,11 +194,19 @@ export default function Layout({ children }) {
                 </Button>
               </Link>
 
-              <Button variant="ghost" size="sm" className="relative">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="relative"
+                onClick={() => setNotificationPanelOpen(true)}
+                title="Open Notifications"
+              >
                 <Bell className="h-4 w-4" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                  3
-                </span>
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadNotifications > 99 ? '99+' : unreadNotifications}
+                  </span>
+                )}
               </Button>
 
               {/* User profile and logout */}
@@ -209,7 +251,7 @@ export default function Layout({ children }) {
         <aside
           className={`${
             isOpen ? "translate-x-0" : "-translate-x-full"
-          } fixed inset-y-0 left-0 z-50 w-64 transform bg-sidebar-background border-r border-sidebar-border transition-transform duration-300 ease-in-out md:relative md:translate-x-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400`}
+          } fixed inset-y-0 left-0 z-50 w-64 transform bg-sidebar-background border-r border-sidebar-border transition-transform duration-300 ease-in-out md:relative md:translate-x-0 overflow-y-auto h-[calc(100vh-3.5rem)] scrollbar-thin scrollbar-thumb-slate-400/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-500/70`}
         >
           {/* Main Navigation */}
           <nav className="p-4">
@@ -259,6 +301,17 @@ export default function Layout({ children }) {
                   <span>All</span>
                 </Link>
               </li>
+              {user?.isAdmin && (
+                <li>
+                  <Link
+                    to="/admin"
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors"
+                  >
+                    <Shield className="h-5 w-5" />
+                    <span>Admin Panel</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 
@@ -356,7 +409,7 @@ export default function Layout({ children }) {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 min-w-0 overflow-y-auto h-screen scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+        <main className="flex-1 min-w-0 overflow-y-auto h-[calc(100vh-3.5rem)] scrollbar-thin scrollbar-thumb-slate-400/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-500/70">
           {/* Mobile search bar */}
           {isOpen && (
             <div className="md:hidden p-4 border-b border-border">
@@ -371,11 +424,11 @@ export default function Layout({ children }) {
           )}
 
           {/* Content */}
-          <div className="p-4 md:p-6">{children}</div>
+          <div className="p-4 md:p-6 min-h-[calc(100vh-7rem)]">{children}</div>
         </main>
 
         {/* Right Sidebar - Recent Posts - Reddit Style */}
-        <aside className="hidden lg:block w-80 bg-sidebar-background border-l border-sidebar-border p-6 overflow-y-auto h-screen scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+        <aside className="hidden lg:block w-80 bg-sidebar-background border-l border-sidebar-border p-6 overflow-y-auto h-[calc(100vh-3.5rem)] scrollbar-thin scrollbar-thumb-slate-400/50 scrollbar-track-transparent hover:scrollbar-thumb-slate-500/70">
           {/* Recent Posts Header */}
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-sidebar-foreground">
@@ -388,32 +441,44 @@ export default function Layout({ children }) {
 
           {/* Recent Posts List */}
           <div className="space-y-4">
-            {recentPosts.map((post) => (
-              <div
-                key={post.id}
-                className="p-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-colors"
-              >
-                <div className="flex items-start space-x-2 mb-2">
-                  <div className="text-xs text-sidebar-muted-foreground">
-                    {post.subreddit}
-                  </div>
-                  <div className="text-xs text-sidebar-muted-foreground">
-                    • {post.time}
-                  </div>
-                </div>
-                <h4 className="text-sm font-medium text-sidebar-foreground mb-2 line-clamp-2">
-                  {post.title}
-                </h4>
-                <div className="flex items-center space-x-3 text-xs text-sidebar-muted-foreground">
-                  <span>
-                    {post.upvotes > 1000
-                      ? `${(post.upvotes / 1000).toFixed(1)}k`
-                      : post.upvotes}
-                  </span>
-                  <span>{post.comments} comments</span>
-                </div>
+            {loading ? (
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
               </div>
-            ))}
+            ) : recentPosts.length > 0 ? (
+              recentPosts.map((post) => (
+                <div
+                  key={post._id}
+                  className="p-3 rounded-lg hover:bg-sidebar-accent cursor-pointer transition-colors"
+                >
+                  <div className="flex items-start space-x-2 mb-2">
+                    <div className="text-xs text-sidebar-muted-foreground">
+                      by {post.createdBy?.username || 'Anonymous'}
+                    </div>
+                    <div className="text-xs text-sidebar-muted-foreground">
+                      • {formatTimeAgo(post.createdAt)}
+                    </div>
+                  </div>
+                  <h4 className="text-sm font-medium text-sidebar-foreground mb-2 line-clamp-2">
+                    {post.content.length > 60 ? `${post.content.substring(0, 60)}...` : post.content}
+                  </h4>
+                  <div className="flex items-center space-x-3 text-xs text-sidebar-muted-foreground">
+                    <span>
+                      {post.likes?.length > 1000
+                        ? `${(post.likes.length / 1000).toFixed(1)}k`
+                        : post.likes?.length || 0} likes
+                    </span>
+                    {post.media?.length > 0 && (
+                      <span>📎 {post.media.length} file{post.media.length > 1 ? 's' : ''}</span>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-sidebar-muted-foreground text-sm">
+                No recent posts
+              </div>
+            )}
           </div>
 
           {/* Community info */}
@@ -432,6 +497,21 @@ export default function Layout({ children }) {
           </div>
         </aside>
       </div>
+
+      {/* Notification Panel */}
+      <NotificationPanel 
+        isOpen={notificationPanelOpen} 
+        onClose={() => {
+          setNotificationPanelOpen(false);
+          loadNotificationCount(); // Refresh count when panel closes
+        }} 
+      />
+
+      {/* Chat Panel */}
+      <UserChatPanel 
+        isOpen={chatPanelOpen} 
+        onClose={() => setChatPanelOpen(false)} 
+      />
     </div>
   );
 }

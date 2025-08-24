@@ -90,11 +90,20 @@ const PostForm = ({ threadId, onPostCreated }) => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {mediaFiles.map((file, index) => (
               <div key={index} className="relative group">
-                <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                   {getFileType(file) === "image" ? (
-                    <Image className="w-8 h-8 text-gray-400" />
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <Video className="w-8 h-8 text-gray-400" />
+                    <video
+                      src={URL.createObjectURL(file)}
+                      className="w-full h-full object-cover"
+                      controls={false}
+                      muted
+                    />
                   )}
                 </div>
                 <button

@@ -68,8 +68,8 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
-      <div className="w-full max-w-md bg-white h-full shadow-lg">
-        <div className="p-4 border-b flex items-center justify-between">
+      <div className="w-full max-w-md bg-card h-full shadow-lg border-l border-border">
+        <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Bell className="w-5 h-5" />
             <h2 className="text-lg font-semibold">Notifications</h2>
@@ -97,7 +97,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           {loading ? (
             <div className="p-4 text-center">Loading...</div>
           ) : notifications.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-muted-foreground">
               No notifications yet
             </div>
           ) : (
@@ -105,8 +105,8 @@ const NotificationPanel = ({ isOpen, onClose }) => {
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
-                    !notification.isRead ? "bg-blue-50" : ""
+                  className={`p-4 border-b border-border hover:bg-muted/50 cursor-pointer ${
+                    !notification.isRead ? "bg-primary/10" : ""
                   }`}
                   onClick={() => !notification.isRead && handleMarkAsRead(notification._id)}
                 >
@@ -115,12 +115,12 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                       <p className="text-sm font-medium">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {notification.createdBy?.username || "Anonymous"} • {formatTime(notification.createdAt)}
                       </p>
                     </div>
                     {!notification.isRead && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full ml-2 mt-1"></div>
                     )}
                   </div>
                 </div>

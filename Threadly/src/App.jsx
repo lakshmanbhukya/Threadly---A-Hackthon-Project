@@ -19,6 +19,8 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import ServerStatus from "./pages/ServerStatus";
+import Explore from "./pages/Explore";
+import All from "./pages/All";
 import NotFound from "./pages/NotFound";
 
 const AppContent = () => {
@@ -117,6 +119,22 @@ const AppContent = () => {
         element={
           <Layout>
             <ServerStatus />
+          </Layout>
+        }
+      />
+      <Route
+        path="/explore"
+        element={
+          <Layout>
+            <Explore />
+          </Layout>
+        }
+      />
+      <Route
+        path="/all"
+        element={
+          <Layout>
+            <All />
           </Layout>
         }
       />

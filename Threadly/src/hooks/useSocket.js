@@ -3,12 +3,10 @@ import { io } from "socket.io-client";
 import { getSocketUrl } from "../config/apiConfig";
 import { toast } from "sonner";
 
-export const useSocket = (userId) => {
+export const useSocket = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!userId) return;
-
     socketRef.current = io(getSocketUrl(), {
       withCredentials: true,
     });
@@ -16,8 +14,7 @@ export const useSocket = (userId) => {
     const socket = socketRef.current;
 
     socket.on("connect", () => {
-      console.log("Connected to server");
-      socket.emit("join", userId);
+      console.log("Connected to server", socket.id);
     });
 
     socket.on("notification", (notification) => {
@@ -33,7 +30,7 @@ export const useSocket = (userId) => {
     return () => {
       socket.disconnect();
     };
-  }, [userId]);
+  }, []);
 
   return socketRef.current;
 };

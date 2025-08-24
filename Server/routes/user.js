@@ -22,7 +22,7 @@ router.get("/auto-login", async (req, res) => {
 
     res.json({
       message: "Auto-login successful",
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username, isAdmin: user.isAdmin },
     });
   } catch (error) {
     req.session.destroy();
@@ -139,6 +139,25 @@ router.get("/profile/:username", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+router.get("/user/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        username: user.username,
+        profilePicture: user.profilePicture
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user" });
   }
 });
 

@@ -8,26 +8,30 @@ const router = express.Router();
 // Create a comment
 router.post('/create', requireAuth, async (req, res) => {
   try {
-    const { content, postId } = req.body;
+    const { content, postId, threadId, isAnonymous } = req.body;
     const userId = req.session.userId;
 
-    if (!content || !postId) {
-      return res.status(400).json({ error: 'Content and postId are required' });
+    if (!content || (!postId && !threadId)) {
+      return res.status(400).json({ error: 'Content and either postId or threadId are required' });
     }
 
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({ error: 'Post not found' });
+    if (postId) {
+      const post = await Post.findById(postId);
+      if (!post) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
     }
 
     const comment = new Comment({
       content,
-      postId,
-      createdBy: userId
+      postId: postId || null,
+      threadId: threadId || null,
+      createdBy: userId,
+      isAnonymous: isAnonymous === 'true'
     });
 
     await comment.save();
-    const populatedComment = await comment.populate('createdBy', 'username');
+    const populatedComment = await comment.populate('createdBy', 'username profilePicture');
 
     res.status(201).json({ message: 'Comment created', comment: populatedComment });
   } catch (error) {
@@ -39,7 +43,20 @@ router.post('/create', requireAuth, async (req, res) => {
 router.get('/post/:postId', async (req, res) => {
   try {
     const comments = await Comment.find({ postId: req.params.postId })
-      .populate('createdBy', 'username')
+      .populate('createdBy', 'username profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.json({ comments });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+});
+
+// Get all comments for a thread
+router.get('/thread/:threadId', async (req, res) => {
+  try {
+    const comments = await Comment.find({ threadId: req.params.threadId, postId: null })
+      .populate('createdBy', 'username profilePicture')
       .sort({ createdAt: -1 });
 
     res.json({ comments });

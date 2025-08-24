@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Textarea } from "../components/ui/Textarea";
 import PostForm from "../components/PostForm";
 import PostCard from "../components/PostCard";
+import CommentSection from "../components/CommentSection";
 import { ArrowLeft } from "lucide-react";
 import { fetchThreadById, fetchPosts } from "../lib/api";
 import { toast } from "sonner";
@@ -135,6 +136,8 @@ export default function ThreadDetail() {
           </div>
         )}
       </div>
+
+      <CommentSection threadId={id} />
     </div>
   );
 }

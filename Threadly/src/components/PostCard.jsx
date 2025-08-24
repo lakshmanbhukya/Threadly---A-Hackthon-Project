@@ -1,18 +1,22 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Share, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Share, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { Avatar } from "./ui/Avatar";
 import { Badge } from "./ui/Badge";
+import ConfirmDialog from "./ui/ConfirmDialog";
 import { toast } from "sonner";
-import { likePost } from "../lib/api";
+import { likePost, deleteAdminPost } from "../lib/api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const PostCard = ({ post, onLike }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [isLiking, setIsLiking] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { user: currentUser } = useAuth();
 
   const handleLike = async () => {
     if (isLiking) return;
@@ -30,6 +34,16 @@ const PostCard = ({ post, onLike }) => {
       toast.error(error.message);
     } finally {
       setIsLiking(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    try {
+      await deleteAdminPost(post._id);
+      toast.success("Post deleted successfully");
+      window.location.reload(); // Refresh to update the list
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -120,12 +134,34 @@ const PostCard = ({ post, onLike }) => {
               <span>Share</span>
             </Button>
             
+            {currentUser?.isAdmin && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+            
             <Button variant="ghost" size="sm">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </div>
+      
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeletePost}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete Post"
+        cancelText="Cancel"
+        type="danger"
+      />
     </Card>
   );
 };

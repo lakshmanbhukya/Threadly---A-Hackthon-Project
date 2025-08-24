@@ -44,6 +44,7 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     } catch (error) {
+      // Silently handle auto-login failures
       setUser(null);
     } finally {
       setLoading(false);

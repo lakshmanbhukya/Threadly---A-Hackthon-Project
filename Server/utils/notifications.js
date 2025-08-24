@@ -23,7 +23,7 @@ const createNotification = async (recipient, type, message, relatedId, relatedMo
       .populate('createdBy', 'username');
     
     if (io) {
-      io.to(`user_${recipient}`).emit('notification', populatedNotification);
+      io.to(`user_${recipient}`).emit('newNotification', populatedNotification);
     }
     
     return populatedNotification;

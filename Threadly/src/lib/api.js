@@ -56,6 +56,10 @@ export const checkAuth = async () => {
     const response = await api.get(API_CONFIG.ENDPOINTS.AUTH.AUTO_LOGIN);
     return response.data;
   } catch (err) {
+    // Silently handle auth check failures (401 is expected when not logged in)
+    if (err.response?.status === 401) {
+      return { user: null };
+    }
     throw err;
   }
 };
@@ -165,6 +169,17 @@ export const fetchPosts = async (threadId, params = {}) => {
   }
 };
 
+export const fetchAllRecentPosts = async (params = {}) => {
+  try {
+    const response = await api.get(API_CONFIG.ENDPOINTS.POSTS.BASE, {
+      params: { ...params, limit: 10 },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch recent posts");
+  }
+};
+
 export const fetchPostById = async (id) => {
   try {
     const response = await api.get(`${API_CONFIG.ENDPOINTS.POSTS.BASE}/${id}`);
@@ -241,6 +256,107 @@ export const markAllNotificationsRead = async () => {
     return response.data;
   } catch (error) {
     throw new Error(error.response?.data?.error || "Failed to mark all notifications as read");
+  }
+};
+
+// Comment APIs
+export const fetchThreadComments = async (threadId) => {
+  try {
+    const response = await api.get(`/comments/thread/${threadId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch comments");
+  }
+};
+
+export const createComment = async (commentData) => {
+  try {
+    const response = await api.post('/comments/create', commentData);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to create comment");
+  }
+};
+
+export const likeComment = async (id) => {
+  try {
+    const response = await api.post(`/comments/${id}/like`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to like comment");
+  }
+};
+
+export const deleteComment = async (id) => {
+  try {
+    const response = await api.delete(`/comments/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to delete comment");
+  }
+};
+
+// Admin APIs
+export const fetchAdminUsers = async () => {
+  try {
+    const response = await api.get('/admin/users');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch users");
+  }
+};
+
+export const fetchAdminThreads = async () => {
+  try {
+    const response = await api.get('/admin/threads');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch threads");
+  }
+};
+
+export const fetchAdminPosts = async () => {
+  try {
+    const response = await api.get('/admin/posts');
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch posts");
+  }
+};
+
+export const deleteAdminUser = async (id) => {
+  try {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to delete user");
+  }
+};
+
+export const deleteAdminThread = async (id) => {
+  try {
+    const response = await api.delete(`/admin/threads/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to delete thread");
+  }
+};
+
+export const deleteAdminPost = async (id) => {
+  try {
+    const response = await api.delete(`/admin/posts/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to delete post");
+  }
+};
+
+export const toggleUserAdmin = async (id) => {
+  try {
+    const response = await api.put(`/admin/users/${id}/admin`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to update admin status");
   }
 };
 

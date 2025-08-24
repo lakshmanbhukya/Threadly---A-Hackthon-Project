@@ -141,7 +141,8 @@ router.get("/", async (req, res) => {
   try {
     const threads = await Thread.find()
       .populate("createdBy", "username profilePicture")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.json({ threads });
   } catch (error) {
