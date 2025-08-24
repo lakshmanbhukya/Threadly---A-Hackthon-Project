@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Heart, MessageCircle, Share, MoreHorizontal, User, Trash2 } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Share,
+  MoreHorizontal,
+  User,
+  Trash2,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/Card";
 import { Avatar } from "./ui/Avatar";
@@ -24,15 +31,18 @@ const ThreadCard = ({ thread, onLike }) => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      if (typeof thread.createdBy === 'string') {
+      if (typeof thread.createdBy === "string") {
         try {
-          const response = await axios.get(`http://localhost:3000/users/user/${thread.createdBy}`, {
-            withCredentials: true
-          });
+          const response = await axios.get(
+            `http://localhost:3000/users/user/${thread.createdBy}`,
+            {
+              withCredentials: true,
+            }
+          );
           setUserInfo(response.data.user);
           setUserNotFound(false);
         } catch (error) {
-          console.error('Failed to fetch user info:', error);
+          console.error("Failed to fetch user info:", error);
           setUserNotFound(true);
         }
       } else if (thread.createdBy?.username) {
@@ -42,32 +52,36 @@ const ThreadCard = ({ thread, onLike }) => {
         setUserNotFound(true);
       }
     };
-    
+
     fetchUserInfo();
     fetchCommentCount();
   }, [thread.createdBy, thread._id]);
 
   const fetchCommentCount = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/comments/thread/${thread._id}`);
+      const response = await axios.get(
+        `http://localhost:3000/comments/thread/${thread._id}`
+      );
       setCommentCount(response.data.comments?.length || 0);
     } catch (error) {
-      console.error('Failed to fetch comment count:', error);
+      console.error("Failed to fetch comment count:", error);
     }
   };
 
-  const displayUser = userNotFound ? { username: 'Anonymous' } : (userInfo || thread.createdBy);
+  const displayUser = userNotFound
+    ? { username: "Anonymous" }
+    : userInfo || thread.createdBy;
 
   const handleLike = async (e) => {
     e.stopPropagation();
     if (isLiking) return;
-    
+
     setIsLiking(true);
     try {
       const response = await likeThread(thread._id);
       setIsLiked(response.isLiked);
       setLikesCount(response.likesCount);
-      
+
       if (onLike) {
         onLike(thread._id, response.isLiked);
       }
@@ -96,7 +110,7 @@ const ThreadCard = ({ thread, onLike }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diff = now - date;
-    
+
     if (diff < 60000) return "Just now";
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
@@ -104,7 +118,7 @@ const ThreadCard = ({ thread, onLike }) => {
   };
 
   return (
-    <Card 
+    <Card
       className="p-4 mb-4 cursor-pointer hover:shadow-md transition-shadow"
       onClick={handleCardClick}
     >
@@ -116,25 +130,25 @@ const ThreadCard = ({ thread, onLike }) => {
               src={displayUser.profilePicture}
               alt="Profile"
               onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
+                e.target.style.display = "none";
+                e.target.nextSibling.style.display = "flex";
               }}
             />
           ) : null}
-          <div 
+          <div
             className="flex h-full w-full items-center justify-center rounded-full bg-muted"
-            style={{ display: displayUser?.profilePicture ? 'none' : 'flex' }}
+            style={{ display: displayUser?.profilePicture ? "none" : "flex" }}
           >
             <span className="text-sm font-medium text-muted-foreground">
               {displayUser?.username?.[0]?.toUpperCase() || "A"}
             </span>
           </div>
         </div>
-        
+
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
-            <span 
-              className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+            <span
+              className="text-sm text-gray-400 hover:text-orange-500 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 if (displayUser?.username && !userNotFound) {
@@ -151,50 +165,50 @@ const ThreadCard = ({ thread, onLike }) => {
               {formatTime(thread.createdAt)}
             </span>
           </div>
-          
-          <h3 className="text-lg font-semibold mb-2 text-blue-600 hover:text-blue-800 cursor-pointer">
+
+          <h3 className="text-lg font-medium mb-2 text-[#ef4444] hover:text-orange-400 cursor-pointer">
             {thread.title}
           </h3>
-          
-          <p className="text-gray-600 mb-3 line-clamp-3">
-            {thread.description}
-          </p>
-          
+
+          <p className="text-[#f9fafb] mb-3 line-clamp-3">{thread.description}</p>
+
           <div className="flex items-center space-x-4 text-gray-500">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
               disabled={isLiking}
-              className={`flex items-center space-x-1 ${isLiked ? "text-red-500" : ""}`}
+              className={`flex items-center space-x-1 ${
+                isLiked ? "text-red-500" : ""
+              }`}
             >
               <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
               <span>{likesCount}</span>
             </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
+
+            <Button
+              variant="ghost"
+              size="sm"
               className="flex items-center space-x-1"
               onClick={(e) => e.stopPropagation()}
             >
               <MessageCircle className="w-4 h-4" />
               <span>{commentCount}</span>
             </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
+
+            <Button
+              variant="ghost"
+              size="sm"
               className="flex items-center space-x-1"
               onClick={(e) => e.stopPropagation()}
             >
               <Share className="w-4 h-4" />
               <span>Share</span>
             </Button>
-            
+
             {currentUser?.isAdmin && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -205,9 +219,9 @@ const ThreadCard = ({ thread, onLike }) => {
                 <Trash2 className="w-4 h-4" />
               </Button>
             )}
-            
-            <Button 
-              variant="ghost" 
+
+            <Button
+              variant="ghost"
               size="sm"
               onClick={(e) => e.stopPropagation()}
             >
@@ -216,7 +230,7 @@ const ThreadCard = ({ thread, onLike }) => {
           </div>
         </div>
       </div>
-      
+
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
