@@ -79,7 +79,6 @@ app.use('/chat', chatRoutes);
 
 // WebSocket chat functionality
 io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
 
   // User joins with their username
   socket.on('join', (username) => {
@@ -138,7 +137,7 @@ io.on('connection', (socket) => {
       // Broadcast updated online users list
       io.emit('onlineUsers', Array.from(onlineUsers.keys()));
     }
-    console.log('User disconnected:', socket.id);
+
   });
 });
 
