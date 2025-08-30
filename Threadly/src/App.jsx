@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ChatProvider } from "./contexts/ChatContext";
 import { useSocket } from "./hooks/useSocket";
 import LoadingScreen from "./components/LoadingScreen";
 import ServerError from "./components/ServerError";
@@ -158,13 +159,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <SidebarProvider>
-            <AppContent />
-          </SidebarProvider>
-        </TooltipProvider>
+        <ChatProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <SidebarProvider>
+              <AppContent />
+            </SidebarProvider>
+          </TooltipProvider>
+        </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>

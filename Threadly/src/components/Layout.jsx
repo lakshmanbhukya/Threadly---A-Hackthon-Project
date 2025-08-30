@@ -7,7 +7,7 @@ import { ThemeToggle } from "./ui/ThemeToggle";
 import { fetchAllRecentPosts, fetchNotifications } from "../lib/api";
 import { useSocket } from "../hooks/useSocket";
 import NotificationPanel from "./NotificationPanel";
-import UserChatPanel from "./UserChatPanel";
+import Chat from "./Chat";
 import {
   Home,
   TrendingUp,
@@ -518,7 +518,7 @@ export default function Layout({ children }) {
       />
 
       {/* Chat Panel */}
-      <UserChatPanel
+      <Chat
         isOpen={chatPanelOpen}
         onClose={() => setChatPanelOpen(false)}
       />

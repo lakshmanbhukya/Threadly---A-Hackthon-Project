@@ -13,13 +13,14 @@ const notificationRoutes = require('./routes/notification');
 const healthRoutes = require('./routes/health');
 const commentRoutes = require('./routes/comments');
 const adminRoutes = require('./routes/admin');
+const chatRoutes = require('./routes/chat');
 const User = require('./models/User');
 const { initializeSocket } = require('./utils/notifications');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
+    origin: process.env.ALLOWED_ORIGIN || 'http://3.110.124.251:3000',
     credentials: true
   }
 });
@@ -28,7 +29,7 @@ const PORT = process.env.PORT || 3000;
 const connectDB = require('./DB/Connection');
 connectDB();
 // Store online users for chat
-const onlineUsers = new Map();
+const onlineUsers = new Map(); // username -> socketId
 const deleteExpiredAccounts = async () => {
   try {
     const thirtyDaysAgo = new Date();
@@ -74,9 +75,75 @@ app.use('/notifications', notificationRoutes);
 app.use('/', healthRoutes);
 app.use('/comments', commentRoutes);
 app.use('/admin', adminRoutes);
+app.use('/chat', chatRoutes);
+
+// WebSocket chat functionality
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  // User joins with their username
+  socket.on('join', (username) => {
+    socket.username = username;
+    onlineUsers.set(username, socket.id);
+    
+    // Broadcast updated online users list
+    io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+  });
+
+  // Join specific conversation room
+  socket.on('joinConversation', (conversationId) => {
+    socket.join(conversationId);
+  });
+
+  // Leave conversation room
+  socket.on('leaveConversation', (conversationId) => {
+    socket.leave(conversationId);
+  });
+
+  // Handle private messages
+  socket.on('sendMessage', (data) => {
+    const { conversationId, message } = data;
+    
+    // Broadcast to all users in the conversation
+    socket.to(conversationId).emit('newMessage', {
+      ...message,
+      conversation: conversationId,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Handle typing indicators
+  socket.on('typing', (data) => {
+    const { conversationId, isTyping } = data;
+    socket.to(conversationId).emit('userTyping', {
+      userId: socket.userId,
+      isTyping
+    });
+  });
+
+  // Handle message read receipts
+  socket.on('messageRead', (data) => {
+    const { conversationId, messageId } = data;
+    socket.to(conversationId).emit('messageRead', {
+      messageId,
+      readBy: socket.userId,
+      readAt: new Date().toISOString()
+    });
+  });
+
+  // Handle disconnect
+  socket.on('disconnect', () => {
+    if (socket.username) {
+      onlineUsers.delete(socket.username);
+      // Broadcast updated online users list
+      io.emit('onlineUsers', Array.from(onlineUsers.keys()));
+    }
+    console.log('User disconnected:', socket.id);
+  });
+});
 
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log('Account deletion job started');
-  console.log('Socket.IO initialized');
+  console.log('Socket.IO chat initialized');
 });

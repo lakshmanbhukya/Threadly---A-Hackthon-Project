@@ -1,6 +1,6 @@
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_BASE || "http://localhost:3000",
-  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || "http://localhost:3000",
+  BASE_URL: import.meta.env.VITE_API_BASE || "http://3.110.124.251:3000",
+  SOCKET_URL: import.meta.env.VITE_SOCKET_URL || "http://3.110.124.251:3000",
   ENDPOINTS: {
     HEALTH: "/health",
     AUTH: {
@@ -24,6 +24,13 @@ export const API_CONFIG = {
       BASE: "/notifications",
       READ: (id) => `/notifications/${id}/read`,
       READ_ALL: "/notifications/read-all"
+    },
+    CHAT: {
+      CONVERSATIONS: "/chat/conversations",
+      MESSAGES: (id) => `/chat/conversations/${id}/messages`,
+      SEND_MESSAGE: (id) => `/chat/conversations/${id}/messages`,
+      MARK_READ: (id) => `/chat/conversations/${id}/read`,
+      ONLINE_USERS: "/chat/users/online"
     }
   }
 };
