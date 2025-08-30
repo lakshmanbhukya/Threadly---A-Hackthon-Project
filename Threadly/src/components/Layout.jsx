@@ -187,7 +187,7 @@ export default function Layout({ children }) {
                 <MessageCircle className="h-4 w-4" />
               </Button>
 
-              <Link to="/create">
+              <Link to="/create-post">
                 <Button
                   variant="ghost"
                   size="sm"

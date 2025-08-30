@@ -201,20 +201,29 @@ export default function CreateThread() {
         }
       }
 
-      const threadData = {
-        title: formData.title,
-        description: formData.content,
-        topic: formData.subreddit,
-        postType: postType,
-        tags: formData.tags,
-        ...(postType === "link" && { linkUrl: formData.linkUrl }),
-        ...(postType === "poll" && {
-          pollOptions: formData.pollOptions.filter((opt) => opt.trim()),
-        }),
-        ...(postType === "media" && { mediaFiles: formData.mediaFiles }),
-      };
+      const threadFormData = new FormData();
+      threadFormData.append('title', formData.title);
+      threadFormData.append('description', formData.content);
+      threadFormData.append('topic', formData.subreddit);
+      threadFormData.append('postType', postType);
+      threadFormData.append('tags', JSON.stringify(formData.tags));
+      
+      if (postType === "link" && formData.linkUrl) {
+        threadFormData.append('linkUrl', formData.linkUrl);
+      }
+      
+      if (postType === "poll") {
+        const validOptions = formData.pollOptions.filter((opt) => opt.trim());
+        threadFormData.append('pollOptions', JSON.stringify(validOptions));
+      }
+      
+      if (postType === "media" && formData.mediaFiles.length > 0) {
+        formData.mediaFiles.forEach((file) => {
+          threadFormData.append('media', file);
+        });
+      }
 
-      await createThread(threadData);
+      await createThread(threadFormData);
 
       setSuccess(true);
       navigate("/");

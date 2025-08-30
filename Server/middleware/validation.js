@@ -70,12 +70,13 @@ const validateThread = (req, res, next) => {
 
 const validatePost = (req, res, next) => {
   const { content } = req.body;
+  const hasFiles = req.files && req.files.length > 0;
   
-  if (!content || content.trim().length === 0) {
-    return res.status(400).json({ error: 'Post content is required' });
+  if ((!content || content.trim().length === 0) && !hasFiles) {
+    return res.status(400).json({ error: 'Post content or media is required' });
   }
   
-  if (content.trim().length > 2000) {
+  if (content && content.trim().length > 2000) {
     return res.status(400).json({ error: 'Post content must be less than 2000 characters' });
   }
   

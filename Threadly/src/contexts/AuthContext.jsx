@@ -44,7 +44,6 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     } catch (error) {
-      // Silently handle auto-login failures
       setUser(null);
     } finally {
       setLoading(false);
@@ -60,7 +59,6 @@ export function AuthProvider({ children }) {
       await logoutUser();
       setUser(null);
     } catch (error) {
-      console.error("Logout failed:", error);
       // Still clear local state even if backend logout fails
       setUser(null);
     }

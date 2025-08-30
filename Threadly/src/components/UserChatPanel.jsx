@@ -24,21 +24,19 @@ const UserChatPanel = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (socket && isOpen && user) {
-      console.log('Setting up socket listeners for user:', user._id);
+      // Setting up socket listeners for user
       
       socket.on('connect', () => {
-        console.log('Socket connected in chat panel');
         setSocketConnected(true);
         socket.emit('join', user._id);
       });
       
       socket.on('disconnect', () => {
-        console.log('Socket disconnected in chat panel');
         setSocketConnected(false);
       });
       
       socket.on('privateMessage', (data) => {
-        console.log('Received private message:', data);
+        // Received private message
         const chatId = getChatId(user._id, data.from);
         setMessages(prev => ({
           ...prev,
@@ -94,7 +92,7 @@ const UserChatPanel = ({ isOpen, onClose }) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('Sending message:', message);
+    // Sending message
     socket.emit('sendPrivateMessage', message);
     
     const chatId = getChatId(user._id, activeChat._id);

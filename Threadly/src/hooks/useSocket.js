@@ -14,7 +14,7 @@ export const useSocket = () => {
     const socket = socketRef.current;
 
     socket.on("connect", () => {
-      console.log("Connected to server", socket.id);
+      // Connected to server silently
     });
 
     socket.on("notification", (notification) => {
@@ -24,7 +24,7 @@ export const useSocket = () => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Disconnected from server");
+      // Disconnected from server silently
     });
 
     return () => {

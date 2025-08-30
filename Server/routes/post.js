@@ -6,12 +6,13 @@ const {
   uploadMedia,
   uploadMediaToCloudinary,
 } = require("../middleware/upload");
-const { validatePost } = require("../middleware/validation");
+const { validatePost, requireAuth } = require("../middleware/validation");
 const { notifyNewPost, notifyPostLiked } = require("../utils/notifications");
 const router = express.Router();
 
 router.post(
   "/create",
+  requireAuth,
   uploadMedia.array("media", 5),
   validatePost,
   async (req, res) => {

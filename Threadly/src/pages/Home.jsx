@@ -85,7 +85,7 @@ export default function Home() {
              searchParams.get('community') ? `${searchParams.get('community')} Community` :
              'Latest Threads'}
           </h1>
-          <Button onClick={() => navigate("/create")}>
+          <Button onClick={() => navigate("/create-thread")}>
             Create Thread
           </Button>
         </div>

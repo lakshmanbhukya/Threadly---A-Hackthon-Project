@@ -14,6 +14,7 @@ import { checkAuth } from "./lib/api";
 import Home from "./pages/Home";
 import ThreadDetail from "./pages/ThreadDetail";
 import CreateThread from "./pages/CreateThread";
+import CreatePost from "./pages/CreatePost";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
@@ -81,7 +82,15 @@ const AppContent = () => {
         }
       />
       <Route
-        path="/create"
+        path="/create-post"
+        element={
+          <Layout>
+            <CreatePost />
+          </Layout>
+        }
+      />
+      <Route
+        path="/create-thread"
         element={
           <Layout>
             <CreateThread />

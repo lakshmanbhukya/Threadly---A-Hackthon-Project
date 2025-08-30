@@ -61,14 +61,12 @@ export const checkAuth = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.AUTH.AUTO_LOGIN);
     return response.data;
-  } catch (err) {
-    // Silently handle auth check failures (401 is expected when not logged in)
-    if (err.response?.status === 401) {
-      return { user: null };
-    }
-    throw err;
+  } catch (error) {
+    // Silently handle all auth check failures - no errors thrown or logged
+    return { user: null };
   }
 };
+
 
 export const logoutUser = async () => {
   try {
@@ -115,6 +113,17 @@ export const fetchThreads = async (params = {}) => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.THREADS.BASE, {
       params,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.error || "Failed to fetch threads");
+  }
+};
+
+export const fetchAllThreads = async (params = {}) => {
+  try {
+    const response = await api.get(API_CONFIG.ENDPOINTS.THREADS.BASE, {
+      params: { ...params, limit: 100 },
     });
     return response.data;
   } catch (error) {
